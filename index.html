@@ -592,6 +592,7 @@ let activeCategory = 'all';
 let modalFood = null;
 let modalQty = 1;
 let modalAddons = []; // active addon keys
+let editIndex = null; // null = adding new, number = editing existing entry
 
 function getAvailableAddons(foodId) {
   const list = FOOD_ADDONS[foodId];
@@ -613,6 +614,19 @@ function openModal(foodId) {
   if (!modalFood) return;
   modalQty = 1;
   modalAddons = [];
+  editIndex = null;
+  updateModal();
+  document.getElementById('qty-modal').classList.add('open');
+}
+function editFood(index) {
+  const dk = dateKey(), data = getData('nutrition');
+  const entry = (data[dk]||[])[index];
+  if (!entry || entry.id==='custom') return;
+  modalFood = FOODS.find(f => f.id === entry.id);
+  if (!modalFood) return;
+  modalQty = entry.qty || 1;
+  modalAddons = [...(entry.addons||[])];
+  editIndex = index;
   updateModal();
   document.getElementById('qty-modal').classList.add('open');
 }
@@ -620,6 +634,7 @@ function closeModal() {
   document.getElementById('qty-modal').classList.remove('open');
   modalFood = null;
   modalAddons = [];
+  editIndex = null;
 }
 function adjustQty(delta) {
   modalQty = Math.max(0.5, Math.round((modalQty + delta) * 10) / 10);
@@ -662,6 +677,7 @@ function updateModal() {
   document.getElementById('modal-pro').textContent = totalPro;
   document.getElementById('modal-fat').textContent = totalFat;
   document.getElementById('modal-carb').textContent = totalCarb;
+  document.querySelector('.modal-add').textContent = editIndex!==null ? 'Update' : 'Add';
 }
 function confirmAdd() {
   const extras = getAddonTotals();
@@ -670,24 +686,28 @@ function confirmAdd() {
   if (!data[dk]) data[dk] = [];
   const addonLabels = modalAddons.map(k => ADDONS[k].label);
   const displayName = modalFood.name + (addonLabels.length ? ' (' + addonLabels.join(', ') + ')' : '');
-  const addedCal  = Math.round((modalFood.cal  + extras.cal)  * modalQty);
-  const addedPro  = Math.round((modalFood.pro  + extras.pro)  * modalQty);
-  const addedFat  = Math.round((modalFood.fat  + extras.fat)  * modalQty);
-  const addedCarb = Math.round((modalFood.carb + extras.carb) * modalQty);
-  // Merge if same food + same addons already logged
-  const sortedAddons = [...modalAddons].sort().join(',');
-  const existing = data[dk].find(f => f.id === modalFood.id && (f.addons||[]).sort().join(',') === sortedAddons);
-  if (existing) {
-    existing.qty  = Math.round((existing.qty + modalQty) * 10) / 10;
-    existing.cal += addedCal;
-    existing.pro += addedPro;
-    existing.fat += addedFat;
-    existing.carb+= addedCarb;
+  const totalCal  = Math.round((modalFood.cal  + extras.cal)  * modalQty);
+  const totalPro  = Math.round((modalFood.pro  + extras.pro)  * modalQty);
+  const totalFat  = Math.round((modalFood.fat  + extras.fat)  * modalQty);
+  const totalCarb = Math.round((modalFood.carb + extras.carb) * modalQty);
+  const entry = {
+    id: modalFood.id, name: displayName, qty: modalQty, serving: modalFood.serving,
+    addons: [...modalAddons], cal: totalCal, pro: totalPro, fat: totalFat, carb: totalCarb,
+  };
+  if (editIndex !== null) {
+    data[dk][editIndex] = entry;
   } else {
-    data[dk].push({
-      id: modalFood.id, name: displayName, qty: modalQty, serving: modalFood.serving,
-      addons: [...modalAddons], cal: addedCal, pro: addedPro, fat: addedFat, carb: addedCarb,
-    });
+    const sortedAddons = [...modalAddons].sort().join(',');
+    const existing = data[dk].find(f => f.id === modalFood.id && (f.addons||[]).sort().join(',') === sortedAddons);
+    if (existing) {
+      existing.qty  = Math.round((existing.qty + modalQty) * 10) / 10;
+      existing.cal += totalCal;
+      existing.pro += totalPro;
+      existing.fat += totalFat;
+      existing.carb+= totalCarb;
+    } else {
+      data[dk].push(entry);
+    }
   }
   setData('nutrition', data);
   closeModal();
@@ -1030,6 +1050,7 @@ function renderNutrition() {
           <div class="cals">${f.cal}</div>
           <div class="pros">${f.pro}g pro</div>
         </div>
+        ${f.id!=='custom'?`<div class="li-remove" onclick="editFood(${i})" style="color:#555;">&#9998;</div>`:''}
         <div class="li-remove" onclick="removeFood(${i})">&#10005;</div>
       </div>`;
     });
