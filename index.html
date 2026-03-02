@@ -513,6 +513,15 @@ const FOOD_ADDONS = {
   'black-beans':    ['sauteed','sauce','cheese','seasoned'],
   'protein-shake':  [],
   'coffee-black':   [],
+  'rice-cakes':     ['peanut-butter'],
+  'pb-banana':      [],
+  'oats-honey':     [],
+  'toast-pb':       [],
+  'fruit-yogurt':   [],
+  'dates-almonds':  [],
+  'protein-oats':   [],
+  'apple-pb':       [],
+  'banana-solo':    [],
 };
 
 // ===== FOOD DATABASE =====
@@ -566,9 +575,20 @@ const FOODS = [
   { id:'salsa', name:'Salsa', serving:'2 tbsp', cat:'snacks', cal:10, pro:0, fat:0, carb:2 },
   { id:'protein-shake', name:'Protein Shake', serving:'1 scoop + water', cat:'snacks', cal:120, pro:25, fat:1, carb:3 },
   { id:'coffee-black', name:'Black Coffee', serving:'1 cup', cat:'snacks', cal:5, pro:0, fat:0, carb:0 },
+
+  // PRE-WORKOUT
+  { id:'rice-cakes', name:'Rice Cakes', serving:'2 cakes', cat:'pre-wo', cal:70, pro:1, fat:0, carb:15 },
+  { id:'pb-banana', name:'PB + Banana', serving:'1 tbsp + 1 banana', cat:'pre-wo', cal:200, pro:5, fat:8, carb:31 },
+  { id:'oats-honey', name:'Oats + Honey', serving:'1/2 cup + 1 tbsp', cat:'pre-wo', cal:214, pro:5, fat:3, carb:44 },
+  { id:'toast-pb', name:'Toast + Peanut Butter', serving:'1 slice + 1 tbsp', cat:'pre-wo', cal:174, pro:7, fat:9, carb:20 },
+  { id:'fruit-yogurt', name:'Fruit + Greek Yogurt', serving:'1 cup + 1/2 cup', cat:'pre-wo', cal:172, pro:12, fat:0, carb:30 },
+  { id:'dates-almonds', name:'Dates + Almonds', serving:'3 dates + 10 almonds', cat:'pre-wo', cal:268, pro:5, fat:7, carb:50 },
+  { id:'protein-oats', name:'Protein Oats', serving:'1/2 cup oats + 1 scoop', cat:'pre-wo', cal:270, pro:30, fat:4, carb:30 },
+  { id:'apple-pb', name:'Apple + Peanut Butter', serving:'1 apple + 1 tbsp', cat:'pre-wo', cal:189, pro:4, fat:8, carb:29 },
+  { id:'banana-solo', name:'Banana (quick fuel)', serving:'1 large', cat:'pre-wo', cal:121, pro:1, fat:0, carb:31 },
 ];
 
-const CATEGORIES = ['all','protein','carbs','fats','veggies','snacks'];
+const CATEGORIES = ['all','protein','carbs','fats','veggies','snacks','pre-wo'];
 let activeCategory = 'all';
 
 // ===== MODAL STATE =====
@@ -678,26 +698,47 @@ function confirmAdd() {
 }
 
 // ===== WORKOUT DATA =====
-const AM_WORKOUT = [
+// AM alternates: Mobility (Mon/Wed/Fri) + Movement Prep (Tue/Thu)
+// Weekends: optional light mobility
+const AM_MOBILITY = [
   { name:'Cat-Cow', detail:'10 reps' },
   { name:"World's Greatest Stretch", detail:'5 each side' },
   { name:'Hip Circles', detail:'10 each direction' },
   { name:'Shoulder Pass-Throughs', detail:'10 reps' },
-  { name:'Deep Squat Hold', detail:'60 sec' },
+  { name:'Deep Squat Hold', detail:'45 sec' },
   { name:'Thoracic Rotations', detail:'8 each side' },
-  { name:'Leg Swings', detail:'10 each' },
-  { name:'Left Side Plank', detail:'3 x 30 sec' },
-  { name:'Right Side Stretch', detail:'30 sec x 3' },
   { name:'Dead Hang', detail:'2 x 30 sec' },
   { name:'Wall Angels', detail:'10 reps' },
-  { name:'Chin Tucks', detail:'15 reps' },
-  { name:'Band Pull-Aparts', detail:'15 reps' },
-  { name:'Single Leg Stand', detail:'30 sec each' },
-  { name:'Single Leg Deadlift', detail:'8 each side' },
-  { name:'Crow Pose', detail:'3 x 10-20 sec' },
-  { name:'Hollow Body Hold', detail:'3 x 20 sec' },
-  { name:'Single Leg Calf Raise', detail:'10 each side' },
+  { name:'Left Side Plank', detail:'2 x 30 sec' },
+  { name:'Chin Tucks', detail:'10 reps' },
 ];
+
+const AM_MOVEMENT = [
+  { name:'Jumping Jacks', detail:'30 sec' },
+  { name:'High Knees', detail:'20 sec' },
+  { name:'Arm Circles (fwd + back)', detail:'10 each' },
+  { name:'Leg Swings (front + side)', detail:'10 each' },
+  { name:'Bodyweight Squats', detail:'15 reps' },
+  { name:'Inchworms', detail:'6 reps' },
+  { name:'Band Pull-Aparts', detail:'15 reps' },
+  { name:'Hollow Body Hold', detail:'3 x 20 sec' },
+  { name:'Single Leg Deadlift', detail:'8 each side' },
+  { name:'Broad Jumps', detail:'5 reps' },
+];
+
+const AM_WEEKEND = [
+  { name:'Cat-Cow', detail:'10 reps' },
+  { name:'Deep Squat Hold', detail:'60 sec' },
+  { name:'Dead Hang', detail:'2 x 30 sec' },
+  { name:'Hip Circles', detail:'10 each direction' },
+  { name:'Thoracic Rotations', detail:'8 each side' },
+];
+
+function getAMWorkout(dayOfWeek) {
+  if (dayOfWeek === 0 || dayOfWeek === 6) return { title: 'AM — Light Mobility (Rest Day)', exercises: AM_WEEKEND };
+  if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) return { title: 'AM — Mobility & Posture', exercises: AM_MOBILITY };
+  return { title: 'AM — Movement Prep', exercises: AM_MOVEMENT };
+}
 
 const PM_HOME = {
   monday:{title:'Push (Chest, Shoulders, Triceps)',exercises:[
@@ -748,6 +789,47 @@ const PM_GYM = {
     {name:'Barbell Bench Press',detail:'3 x 8'},{name:'Barbell Rows',detail:'3 x 8'},
     {name:'Overhead Press',detail:'3 x 8'},{name:'Barbell Curls',detail:'2 x 10'},
     {name:'Face Pulls',detail:'3 x 15'},
+  ]},
+  friday:{title:'Calisthenics & Skill Work',exercises:PM_HOME.friday.exercises},
+};
+
+const PM_BW = {
+  monday:{title:'Push — Bodyweight',exercises:[
+    {name:'Push-Ups',detail:'4 x 15-20'},
+    {name:'Decline Push-Ups (feet elevated)',detail:'3 x 12'},
+    {name:'Diamond Push-Ups',detail:'3 x 10-12'},
+    {name:'Pike Push-Ups',detail:'4 x 8-10'},
+    {name:'Dips (chairs/countertop)',detail:'3 x 10-12'},
+    {name:'Archer Push-Ups',detail:'3 x 6-8 each'},
+    {name:'Tricep Bench Dips',detail:'3 x 15'},
+  ]},
+  tuesday:{title:'Pull — Bodyweight',exercises:[
+    {name:'Pull-Ups',detail:'4 x Max'},
+    {name:'Chin-Ups',detail:'3 x Max'},
+    {name:'Inverted Rows (table/bar)',detail:'4 x 12'},
+    {name:'Doorframe Rows',detail:'3 x 12'},
+    {name:'Towel Bicep Curls (isometric)',detail:'3 x 15 sec'},
+    {name:'Superman Hold',detail:'3 x 20 sec'},
+    {name:'Face-Down Y-T-W Raises',detail:'2 x 10 each'},
+  ]},
+  wednesday:{title:'Legs — Bodyweight',exercises:[
+    {name:'Bodyweight Squats',detail:'4 x 20'},
+    {name:'Bulgarian Split Squats',detail:'3 x 12 each'},
+    {name:'Walking Lunges',detail:'3 x 12 each'},
+    {name:'Single Leg Glute Bridge',detail:'3 x 12 each'},
+    {name:'Jump Squats',detail:'3 x 10'},
+    {name:'Calf Raises (slow, on step)',detail:'4 x 20'},
+    {name:'Wall Sit',detail:'3 x 45 sec'},
+    {name:'Lying Leg Raises',detail:'3 x 15'},
+  ]},
+  thursday:{title:'Full Body — Bodyweight',exercises:[
+    {name:'Burpees',detail:'3 x 10'},
+    {name:'Pull-Ups',detail:'3 x Max'},
+    {name:'Push-Ups',detail:'3 x 15'},
+    {name:'Bodyweight Squats',detail:'3 x 20'},
+    {name:'Dips',detail:'3 x 10'},
+    {name:'Plank',detail:'3 x 45 sec'},
+    {name:'Mountain Climbers',detail:'3 x 20'},
   ]},
   friday:{title:'Calisthenics & Skill Work',exercises:PM_HOME.friday.exercises},
 };
@@ -810,16 +892,20 @@ function renderWorkouts() {
     </div>
   </div>`;
 
+  // AM — alternating mobility / movement prep
+  const am = getAMWorkout(currentDate.getDay());
   const amChecked = dayData.am||[];
-  html += renderWorkoutCard('am','AM — Mobility & Posture', AM_WORKOUT, amChecked);
+  html += renderWorkoutCard('am', am.title, am.exercises, amChecked);
 
   if (isWeekday) {
     const location = dayData.location||'home';
-    const pm = location==='gym' ? PM_GYM[dayName] : PM_HOME[dayName];
+    const pmSrc = location==='gym' ? PM_GYM : location==='bw' ? PM_BW : PM_HOME;
+    const pm = pmSrc[dayName];
     if (pm) {
-      html += `<div style="display:flex;gap:8px;margin-bottom:14px;">
+      html += `<div style="display:flex;gap:6px;margin-bottom:14px;">
         <button class="btn-sm" style="flex:1;${location==='home'?'background:#222;color:#fff;border-color:#444;':''}" onclick="setLocation('home')">Home</button>
         <button class="btn-sm" style="flex:1;${location==='gym'?'background:#222;color:#fff;border-color:#444;':''}" onclick="setLocation('gym')">Gym</button>
+        <button class="btn-sm" style="flex:1;${location==='bw'?'background:#222;color:#fff;border-color:#444;':''}" onclick="setLocation('bw')">Bodyweight</button>
       </div>`;
       html += renderWorkoutCard('pm','PM — '+pm.title, pm.exercises, dayData.pm||[]);
     }
@@ -939,7 +1025,7 @@ function renderFoodPicker() {
   // Category tabs
   let tabsHtml = '';
   CATEGORIES.forEach(c => {
-    tabsHtml += `<button class="cat-tab ${activeCategory===c?'active':''}" onclick="activeCategory='${c}';renderFoodPicker();">${c==='all'?'All':c.charAt(0).toUpperCase()+c.slice(1)}</button>`;
+    tabsHtml += `<button class="cat-tab ${activeCategory===c?'active':''}" onclick="activeCategory='${c}';renderFoodPicker();">${c==='all'?'All':c==='pre-wo'?'Pre-Workout':c.charAt(0).toUpperCase()+c.slice(1)}</button>`;
   });
   document.getElementById('cat-tabs').innerHTML = tabsHtml;
 
