@@ -242,6 +242,18 @@
   .stat-box .num { font-size: 28px; font-weight: 800; }
   .stat-box .lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
 
+  /* ADD-ONS */
+  .addons-wrap { margin: 12px 0; }
+  .addons-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .addon-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .addon-chip {
+    background: #222; border: 1px solid var(--border); border-radius: 20px;
+    padding: 6px 12px; font-size: 11px; color: var(--muted); cursor: pointer;
+    transition: all 0.15s; user-select: none;
+  }
+  .addon-chip.on { background: #1a1a1a; border-color: var(--yellow); color: var(--yellow); }
+  .addon-chip .addon-extra { font-size: 9px; opacity: 0.7; }
+
   /* PAGES */
   .page { display: none; }
   .page.active { display: block; }
@@ -385,6 +397,10 @@
       <button class="qty-btn" onclick="adjustQty(0.5)">+</button>
     </div>
     <div class="qty-unit" id="modal-unit">servings</div>
+    <div class="addons-wrap" id="addons-wrap" style="display:none;">
+      <div class="addons-label">Prep / Add-ons</div>
+      <div class="addon-chips" id="addon-chips"></div>
+    </div>
     <div class="modal-macros">
       <div class="mm"><div class="mv" id="modal-cal">0</div><div class="ml">cal</div></div>
       <div class="mm"><div class="mv" id="modal-pro">0</div><div class="ml">protein</div></div>
@@ -441,8 +457,65 @@ function getData(key) { try { return JSON.parse(localStorage.getItem(key))||{}; 
 function getArr(key) { try { return JSON.parse(localStorage.getItem(key))||[]; } catch(e) { return []; } }
 function setData(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
+// ===== ADD-ONS (extra cal/pro/fat/carb per serving) =====
+const ADDONS = {
+  breaded:    { label:'Breaded',     cal:120, pro:2, fat:6,  carb:14 },
+  fried:      { label:'Fried',       cal:100, pro:0, fat:10, carb:5  },
+  grilled:    { label:'Grilled',     cal:10,  pro:0, fat:1,  carb:0  },
+  baked:      { label:'Baked',       cal:5,   pro:0, fat:0,  carb:0  },
+  sauteed:    { label:'Saut\u00e9ed',cal:45,  pro:0, fat:5,  carb:0  },
+  sauce:      { label:'With Sauce',  cal:60,  pro:1, fat:3,  carb:7  },
+  cheese:     { label:'With Cheese', cal:110, pro:7, fat:9,  carb:1  },
+  butter:     { label:'With Butter', cal:100, pro:0, fat:11, carb:0  },
+  dressing:   { label:'Dressing',    cal:70,  pro:0, fat:7,  carb:2  },
+  soy_sauce:  { label:'Soy Sauce',   cal:10,  pro:1, fat:0,  carb:1  },
+  hot_sauce:  { label:'Hot Sauce',   cal:5,   pro:0, fat:0,  carb:1  },
+  seasoned:   { label:'Seasoned',    cal:5,   pro:0, fat:0,  carb:1  },
+};
+
+// Which add-ons show for each food (by id). If not listed, gets the default set.
+const FOOD_ADDONS = {
+  'chicken-breast': ['grilled','baked','breaded','fried','sauteed','sauce','seasoned'],
+  'chicken-thigh':  ['grilled','baked','breaded','fried','sauteed','sauce','seasoned'],
+  'grilled-chicken':['breaded','fried','sauce','cheese','seasoned'],
+  'shrimp':         ['grilled','breaded','fried','sauteed','butter','sauce','seasoned'],
+  'salmon':         ['grilled','baked','sauteed','butter','sauce','seasoned'],
+  'tilapia':        ['grilled','baked','breaded','fried','butter','seasoned'],
+  'steak':          ['grilled','sauteed','butter','sauce','seasoned'],
+  'ground-beef':    ['sauteed','sauce','cheese','seasoned'],
+  'ground-turkey':  ['sauteed','sauce','cheese','seasoned'],
+  'eggs':           ['fried','sauteed','butter','cheese','hot_sauce','seasoned'],
+  'egg-whites':     ['sauteed','seasoned'],
+  'white-rice':     ['butter','soy_sauce','seasoned'],
+  'jasmine-rice':   ['butter','soy_sauce','seasoned'],
+  'pasta':          ['butter','sauce','cheese','seasoned'],
+  'sweet-potato':   ['baked','butter','seasoned'],
+  'potato':         ['baked','fried','butter','cheese','seasoned'],
+  'bread':          ['butter','cheese'],
+  'broccoli':       ['sauteed','butter','cheese','seasoned'],
+  'spinach':        ['sauteed','dressing','seasoned'],
+  'mixed-veggies':  ['sauteed','butter','seasoned'],
+  'salad-greens':   ['dressing','cheese'],
+  'greek-yogurt':   [],
+  'oats':           [],
+  'banana':         [],
+  'apple':          [],
+  'berries':        [],
+  'dates':          [],
+  'honey':          [],
+  'salsa':          [],
+  'avocado':        ['seasoned'],
+  'olive-oil':      [],
+  'peanut-butter':  [],
+  'almonds':        [],
+  'mixed-nuts':     [],
+  'brazil-nuts':    [],
+  'black-beans':    ['sauteed','sauce','cheese','seasoned'],
+  'protein-shake':  [],
+  'coffee-black':   [],
+};
+
 // ===== FOOD DATABASE =====
-// cal/pro/fat/carb per 1 serving
 const FOODS = [
   // PROTEIN
   { id:'chicken-breast', name:'Chicken Breast', serving:'4 oz', cat:'protein', cal:187, pro:35, fat:4, carb:0 },
@@ -501,45 +574,95 @@ let activeCategory = 'all';
 // ===== MODAL STATE =====
 let modalFood = null;
 let modalQty = 1;
+let modalAddons = []; // active addon keys
+
+function getAvailableAddons(foodId) {
+  const list = FOOD_ADDONS[foodId];
+  if (list === undefined) return ['grilled','breaded','fried','sauce','seasoned']; // default
+  return list;
+}
+
+function getAddonTotals() {
+  let cal=0, pro=0, fat=0, carb=0;
+  modalAddons.forEach(key => {
+    const a = ADDONS[key];
+    if (a) { cal+=a.cal; pro+=a.pro; fat+=a.fat; carb+=a.carb; }
+  });
+  return { cal, pro, fat, carb };
+}
 
 function openModal(foodId) {
   modalFood = FOODS.find(f => f.id === foodId);
   if (!modalFood) return;
   modalQty = 1;
+  modalAddons = [];
   updateModal();
   document.getElementById('qty-modal').classList.add('open');
 }
 function closeModal() {
   document.getElementById('qty-modal').classList.remove('open');
   modalFood = null;
+  modalAddons = [];
 }
 function adjustQty(delta) {
   modalQty = Math.max(0.5, Math.round((modalQty + delta) * 10) / 10);
   updateModal();
 }
+function toggleAddon(key) {
+  const i = modalAddons.indexOf(key);
+  if (i === -1) modalAddons.push(key); else modalAddons.splice(i, 1);
+  updateModal();
+}
 function updateModal() {
+  const avail = getAvailableAddons(modalFood.id);
+  const wrap = document.getElementById('addons-wrap');
+  const chips = document.getElementById('addon-chips');
+
+  if (avail.length === 0) {
+    wrap.style.display = 'none';
+  } else {
+    wrap.style.display = '';
+    chips.innerHTML = avail.map(key => {
+      const a = ADDONS[key];
+      const on = modalAddons.includes(key);
+      return `<div class="addon-chip ${on?'on':''}" onclick="toggleAddon('${key}')">
+        ${a.label} <span class="addon-extra">+${a.cal}</span>
+      </div>`;
+    }).join('');
+  }
+
+  const extras = getAddonTotals();
+  const totalCal  = Math.round((modalFood.cal  + extras.cal)  * modalQty);
+  const totalPro  = Math.round((modalFood.pro  + extras.pro)  * modalQty);
+  const totalFat  = Math.round((modalFood.fat  + extras.fat)  * modalQty);
+  const totalCarb = Math.round((modalFood.carb + extras.carb) * modalQty);
+
   document.getElementById('modal-food-name').textContent = modalFood.name;
   document.getElementById('modal-food-serving').textContent = modalFood.serving + ' per serving';
   document.getElementById('modal-qty').textContent = modalQty;
   document.getElementById('modal-unit').textContent = modalQty === 1 ? 'serving' : 'servings';
-  document.getElementById('modal-cal').textContent = Math.round(modalFood.cal * modalQty);
-  document.getElementById('modal-pro').textContent = Math.round(modalFood.pro * modalQty);
-  document.getElementById('modal-fat').textContent = Math.round(modalFood.fat * modalQty);
-  document.getElementById('modal-carb').textContent = Math.round(modalFood.carb * modalQty);
+  document.getElementById('modal-cal').textContent = totalCal;
+  document.getElementById('modal-pro').textContent = totalPro;
+  document.getElementById('modal-fat').textContent = totalFat;
+  document.getElementById('modal-carb').textContent = totalCarb;
 }
 function confirmAdd() {
+  const extras = getAddonTotals();
   const dk = dateKey();
   const data = getData('nutrition');
   if (!data[dk]) data[dk] = [];
+  const addonLabels = modalAddons.map(k => ADDONS[k].label);
+  const displayName = modalFood.name + (addonLabels.length ? ' (' + addonLabels.join(', ') + ')' : '');
   data[dk].push({
     id: modalFood.id,
-    name: modalFood.name,
+    name: displayName,
     qty: modalQty,
     serving: modalFood.serving,
-    cal: Math.round(modalFood.cal * modalQty),
-    pro: Math.round(modalFood.pro * modalQty),
-    fat: Math.round(modalFood.fat * modalQty),
-    carb: Math.round(modalFood.carb * modalQty),
+    addons: [...modalAddons],
+    cal:  Math.round((modalFood.cal  + extras.cal)  * modalQty),
+    pro:  Math.round((modalFood.pro  + extras.pro)  * modalQty),
+    fat:  Math.round((modalFood.fat  + extras.fat)  * modalQty),
+    carb: Math.round((modalFood.carb + extras.carb) * modalQty),
   });
   setData('nutrition', data);
   closeModal();
