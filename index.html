@@ -499,6 +499,8 @@ const ADDONS = {
   cheese:     { label:'With Cheese', cal:110, pro:7, fat:9,  carb:1  },
   butter:     { label:'With Butter', cal:100, pro:0, fat:11, carb:0  },
   dressing:   { label:'Dressing',    cal:70,  pro:0, fat:7,  carb:2  },
+  caesar:     { label:'Caesar Dressing', cal:80, pro:1, fat:8, carb:1 },
+  ranch:      { label:'Ranch',       cal:73,  pro:0, fat:8,  carb:1  },
   soy_sauce:  { label:'Soy Sauce',   cal:10,  pro:1, fat:0,  carb:1  },
   hot_sauce:  { label:'Hot Sauce',   cal:5,   pro:0, fat:0,  carb:1  },
   seasoned:   { label:'Seasoned',    cal:5,   pro:0, fat:0,  carb:1  },
@@ -508,7 +510,7 @@ const ADDONS = {
 const FOOD_ADDONS = {
   'chicken-breast': ['grilled','baked','breaded','fried','sauteed','sauce','seasoned'],
   'chicken-thigh':  ['grilled','baked','breaded','fried','sauteed','sauce','seasoned'],
-  'grilled-chicken':['breaded','fried','sauce','cheese','seasoned'],
+  'grilled-chicken':['breaded','fried','sauce','cheese','caesar','ranch','seasoned'],
   'shrimp':         ['grilled','breaded','fried','sauteed','butter','sauce','seasoned'],
   'salmon':         ['grilled','baked','sauteed','butter','sauce','seasoned'],
   'tilapia':        ['grilled','baked','breaded','fried','butter','seasoned'],
@@ -523,10 +525,10 @@ const FOOD_ADDONS = {
   'sweet-potato':   ['baked','butter','seasoned'],
   'potato':         ['baked','fried','butter','cheese','seasoned'],
   'bread':          ['butter','cheese'],
-  'broccoli':       ['sauteed','butter','cheese','seasoned'],
-  'spinach':        ['sauteed','dressing','seasoned'],
+  'broccoli':       ['sauteed','butter','cheese','ranch','seasoned'],
+  'spinach':        ['sauteed','dressing','caesar','ranch','seasoned'],
   'mixed-veggies':  ['sauteed','butter','seasoned'],
-  'salad-greens':   ['dressing','cheese'],
+  'salad-greens':   ['dressing','caesar','ranch','cheese'],
   'greek-yogurt':   [],
   'oats':           [],
   'banana':         [],
@@ -878,6 +880,9 @@ function renderWorkouts() {
 
   // Morning walk
   const walkMin = dayData.walk || 0;
+  const walkMiles = dayData.walkMiles || 0;
+  const walkCals = Math.round(walkMiles * 90); // ~90 cal/mile at ~170 lbs
+  const foodEquivs = getWalkFoodEquivs(walkCals);
   html += `<div class="card">
     <div class="card-header"><h2>Morning Walk</h2><span class="badge ${walkMin>=60?'done':''}">${walkMin} min</span></div>
     <div class="card-body">
@@ -895,7 +900,39 @@ function renderWorkouts() {
         <button class="btn-sm" onclick="setWalk(60)" style="${walkMin===60?'background:#222;border-color:#444;':''}">60m</button>
         <button class="btn-sm" onclick="setWalk(90)" style="${walkMin===90?'background:#222;border-color:#444;':''}">90m</button>
       </div>
-      ${walkMin > 0 ? `<div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">${walkMin >= 60 ? 'Solid walk. Vitamin D + cortisol control.' : walkMin >= 30 ? 'Good start. Try to push to 60 min.' : 'Short walk. More time = more benefit.'}</div>` : ''}
+      <div style="border-top:1px solid #1a1a1a;margin-top:14px;padding-top:14px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Distance</div>
+        <div style="display:flex;align-items:center;gap:12px;justify-content:center;">
+          <button class="qty-btn" onclick="adjustWalkMiles(-0.25)" style="width:38px;height:38px;font-size:18px;border-radius:50%;background:#222;border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;">&minus;</button>
+          <div style="text-align:center;">
+            <div style="font-size:32px;font-weight:800;">${walkMiles.toFixed(walkMiles%1===0?0:2)}</div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;">miles</div>
+          </div>
+          <button class="qty-btn" onclick="adjustWalkMiles(0.25)" style="width:38px;height:38px;font-size:18px;border-radius:50%;background:#222;border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:center;margin-top:6px;">
+          <button class="btn-sm" onclick="setWalkMiles(1)" style="${walkMiles===1?'background:#222;border-color:#444;':''}">1 mi</button>
+          <button class="btn-sm" onclick="setWalkMiles(2)" style="${walkMiles===2?'background:#222;border-color:#444;':''}">2 mi</button>
+          <button class="btn-sm" onclick="setWalkMiles(3)" style="${walkMiles===3?'background:#222;border-color:#444;':''}">3 mi</button>
+          <button class="btn-sm" onclick="setWalkMiles(4)" style="${walkMiles===4?'background:#222;border-color:#444;':''}">4 mi</button>
+        </div>
+      </div>
+      ${walkMiles > 0 ? `
+      <div style="border-top:1px solid #1a1a1a;margin-top:14px;padding-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Burn Estimate</span>
+          <span style="font-size:20px;font-weight:800;color:var(--green);">${walkCals} cal</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);">~90 cal/mile at ~170 lbs</div>
+        ${foodEquivs.length ? `
+        <div style="margin-top:10px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">That's about...</div>
+          ${foodEquivs.map(eq => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid #111;">
+            <span>${eq.label}</span><span style="color:var(--green);font-weight:600;">${eq.amount}</span>
+          </div>`).join('')}
+        </div>` : ''}
+      </div>` : ''}
+      ${walkMin > 0 && walkMiles === 0 ? `<div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">${walkMin >= 60 ? 'Solid walk. Vitamin D + cortisol control.' : walkMin >= 30 ? 'Good start. Try to push to 60 min.' : 'Short walk. More time = more benefit.'}</div>` : ''}
     </div>
   </div>`;
 
@@ -984,6 +1021,42 @@ function setWalk(val) {
   setData('workouts',data); renderWorkouts();
 }
 
+function adjustWalkMiles(delta) {
+  const dk=dateKey(), data=getData('workouts');
+  if (!data[dk]) data[dk]={};
+  data[dk].walkMiles = Math.max(0, Math.round(((data[dk].walkMiles||0)+delta)*100)/100);
+  setData('workouts',data); renderWorkouts();
+}
+function setWalkMiles(val) {
+  const dk=dateKey(), data=getData('workouts');
+  if (!data[dk]) data[dk]={};
+  data[dk].walkMiles = val;
+  setData('workouts',data); renderWorkouts();
+}
+
+function getWalkFoodEquivs(cals) {
+  if (cals <= 0) return [];
+  const equivs = [
+    { name:'Banana', cal:105 },
+    { name:'Eggs', cal:72 },
+    { name:'Bread Slice', cal:80 },
+    { name:'Greek Yogurt', cal:130 },
+    { name:'Protein Shake', cal:120 },
+    { name:'PB (2 tbsp)', cal:188 },
+    { name:'Apple', cal:95 },
+    { name:'Rice (1 cup)', cal:206 },
+  ];
+  const results = [];
+  for (const eq of equivs) {
+    const amt = cals / eq.cal;
+    if (amt >= 0.4) {
+      results.push({ label: eq.name, amount: amt >= 1.95 ? Math.round(amt)+'x' : amt.toFixed(1)+'x' });
+    }
+    if (results.length >= 4) break;
+  }
+  return results;
+}
+
 function setAMRoutine(routine) {
   const dk = dateKey(), data = getData('workouts');
   if (!data[dk]) data[dk] = {};
@@ -1008,7 +1081,7 @@ function calcExerciseBurn(dk) {
   const data = getData('workouts');
   const d = data[dk] || {};
   let walk=0, am=0, pm=0, cd=0;
-  walk = (d.walk||0) * 4;
+  walk = (d.walkMiles||0) > 0 ? Math.round((d.walkMiles||0) * 90) : (d.walk||0) * 4;
   const routine = d.amRoutine||'a';
   const amCal = routine==='b'?11:routine==='c'?5:6;
   am = (d.am||[]).length * amCal;
