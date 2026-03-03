@@ -118,6 +118,8 @@
   .progress-fill.cal { background: var(--accent); }
   .progress-fill.cal.over { background: var(--red); }
   .progress-fill.pro { background: var(--green); }
+  .progress-fill.fat { background: var(--yellow); }
+  .progress-fill.carb { background: #60a5fa; }
 
   /* SEARCH */
   .search-wrap { position: relative; margin-bottom: 14px; }
@@ -295,6 +297,8 @@
     <div class="macro-row">
       <div class="macro-box" id="macro-cal"><div class="val">0</div><div class="unit">calories</div></div>
       <div class="macro-box" id="macro-pro"><div class="val">0</div><div class="unit">protein (g)</div></div>
+      <div class="macro-box" id="macro-fat"><div class="val">0</div><div class="unit">fat (g)</div></div>
+      <div class="macro-box" id="macro-carb"><div class="val">0</div><div class="unit">carbs (g)</div></div>
     </div>
     <div class="progress-wrap">
       <div class="progress-label"><span>Calories</span><span id="cal-prog-label">0 / 2,000</span></div>
@@ -303,6 +307,14 @@
     <div class="progress-wrap">
       <div class="progress-label"><span>Protein</span><span id="pro-prog-label">0 / 170g</span></div>
       <div class="progress-bar"><div class="progress-fill pro" id="pro-bar" style="width:0%"></div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Fat</span><span id="fat-prog-label">0g</span></div>
+      <div class="progress-bar"><div class="progress-fill fat" id="fat-bar" style="width:0%"></div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Carbs</span><span id="carb-prog-label">0g</span></div>
+      <div class="progress-bar"><div class="progress-fill carb" id="carb-bar" style="width:0%"></div></div>
     </div>
 
     <!-- Calorie Balance -->
@@ -348,6 +360,8 @@
           <input class="cn" id="c-name" placeholder="Food name">
           <input class="cc" id="c-cal" placeholder="Cal" type="number">
           <input class="cp" id="c-pro" placeholder="Pro" type="number">
+          <input class="cc" id="c-fat" placeholder="Fat" type="number">
+          <input class="cc" id="c-carb" placeholder="Carb" type="number">
           <button class="btn-sm" onclick="addCustomFood()">+</button>
         </div>
       </div>
@@ -994,26 +1008,36 @@ function renderNutrition() {
 
   document.getElementById('nutrition-date').innerHTML = formatDate(currentDate);
 
-  let totalCal=0, totalPro=0;
-  dayFoods.forEach(f => { totalCal+=f.cal; totalPro+=f.pro; });
+  let totalCal=0, totalPro=0, totalFat=0, totalCarb=0;
+  dayFoods.forEach(f => { totalCal+=f.cal; totalPro+=f.pro; totalFat+=(f.fat||0); totalCarb+=(f.carb||0); });
 
   // Macros
   const calBox = document.getElementById('macro-cal');
   const proBox = document.getElementById('macro-pro');
+  const fatBox = document.getElementById('macro-fat');
+  const carbBox = document.getElementById('macro-carb');
   calBox.querySelector('.val').textContent = totalCal;
   calBox.className = 'macro-box' + (totalCal>2000?' over':totalCal>=1900?' hit':'');
   proBox.querySelector('.val').textContent = totalPro;
   proBox.className = 'macro-box' + (totalPro>=170?' hit':'');
+  fatBox.querySelector('.val').textContent = totalFat;
+  carbBox.querySelector('.val').textContent = totalCarb;
 
   // Progress bars
   const calPct = Math.min(100, (totalCal/2000)*100);
   const proPct = Math.min(100, (totalPro/170)*100);
+  const fatPct = Math.min(100, (totalFat/65)*100);
+  const carbPct = Math.min(100, (totalCarb/250)*100);
   const calBar = document.getElementById('cal-bar');
   calBar.style.width = calPct+'%';
   calBar.className = 'progress-fill cal' + (totalCal>2000?' over':'');
   document.getElementById('pro-bar').style.width = proPct+'%';
+  document.getElementById('fat-bar').style.width = fatPct+'%';
+  document.getElementById('carb-bar').style.width = carbPct+'%';
   document.getElementById('cal-prog-label').textContent = totalCal.toLocaleString()+' / 2,000';
   document.getElementById('pro-prog-label').textContent = totalPro+'g / 170g';
+  document.getElementById('fat-prog-label').textContent = totalFat+'g / 65g';
+  document.getElementById('carb-prog-label').textContent = totalCarb+'g / 250g';
 
   // Burn
   const burn = calcExerciseBurn(dk);
@@ -1048,7 +1072,7 @@ function renderNutrition() {
         </div>
         <div class="li-macros">
           <div class="cals">${f.cal}</div>
-          <div class="pros">${f.pro}g pro</div>
+          <div class="pros">${f.pro}g P · ${f.fat||0}g F · ${f.carb||0}g C</div>
         </div>
         ${f.id!=='custom'?`<div class="li-remove" onclick="editFood(${i})" style="color:#555;">&#9998;</div>`:''}
         <div class="li-remove" onclick="removeFood(${i})">&#10005;</div>
@@ -1097,6 +1121,8 @@ function addCustomFood() {
   const name = document.getElementById('c-name').value.trim();
   const cal = parseInt(document.getElementById('c-cal').value)||0;
   const pro = parseInt(document.getElementById('c-pro').value)||0;
+  const fat = parseInt(document.getElementById('c-fat').value)||0;
+  const carb = parseInt(document.getElementById('c-carb').value)||0;
   if (!name) return;
   const dk = dateKey(), data = getData('nutrition');
   if (!data[dk]) data[dk] = [];
@@ -1105,13 +1131,17 @@ function addCustomFood() {
     existingCustom.qty += 1;
     existingCustom.cal += cal;
     existingCustom.pro += pro;
+    existingCustom.fat += fat;
+    existingCustom.carb += carb;
   } else {
-    data[dk].push({ id:'custom', name, qty:1, serving:'custom', cal, pro, fat:0, carb:0 });
+    data[dk].push({ id:'custom', name, qty:1, serving:'custom', cal, pro, fat, carb });
   }
   setData('nutrition', data);
   document.getElementById('c-name').value='';
   document.getElementById('c-cal').value='';
   document.getElementById('c-pro').value='';
+  document.getElementById('c-fat').value='';
+  document.getElementById('c-carb').value='';
   renderNutrition();
 }
 
