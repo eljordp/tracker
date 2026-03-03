@@ -926,6 +926,24 @@ function renderWorkouts() {
     html += `<div class="card"><div class="card-header"><h2>Rest Day</h2></div>
     <div class="card-body" style="font-size:13px;color:var(--muted);">Active recovery. Walk, stretch, stay moving.</div></div>`;
   }
+
+  // Burn summary
+  const burn = calcExerciseBurn(dk);
+  if (burn.exercise > 0) {
+    const parts = [];
+    if (burn.walk>0) parts.push('Walk '+burn.walk);
+    if (burn.am>0) parts.push('AM '+burn.am);
+    if (burn.pm>0) parts.push('PM '+burn.pm);
+    if (burn.cd>0) parts.push('Cooldown '+burn.cd);
+    html += `<div class="card">
+      <div class="card-header"><h2>Calories Burned</h2><span class="badge done">${burn.exercise}</span></div>
+      <div class="card-body">
+        <div style="font-size:28px;font-weight:800;text-align:center;color:var(--green);">${burn.exercise} cal</div>
+        <div style="font-size:10px;color:#444;text-align:center;margin-top:6px;">${parts.join(' · ')}</div>
+      </div>
+    </div>`;
+  }
+
   document.getElementById('workout-cards').innerHTML = html;
 }
 
