@@ -259,12 +259,120 @@
   /* PAGES */
   .page { display: none; }
   .page.active { display: block; }
+
+  /* TODAY PAGE */
+  .today-ring-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
+  .today-ring { position: relative; width: 160px; height: 160px; }
+  .today-ring svg { transform: rotate(-90deg); }
+  .today-ring-bg { fill: none; stroke: #1a1a1a; stroke-width: 10; }
+  .today-ring-fill { fill: none; stroke: var(--green); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+  .today-ring-text {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .today-ring-pct { font-size: 36px; font-weight: 800; }
+  .today-ring-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+  .today-streak { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .today-streak .streak-num { font-size: 18px; font-weight: 800; color: var(--green); }
+
+  .habit-list { display: flex; flex-direction: column; gap: 2px; }
+  .habit-item {
+    display: flex; align-items: center; gap: 14px; padding: 16px;
+    background: var(--card); border-radius: 12px;
+    cursor: pointer; user-select: none; transition: background 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .habit-item:active { transform: scale(0.98); background: #1a1a1a; }
+  .habit-check {
+    width: 28px; height: 28px; border: 2.5px solid #333; border-radius: 50%;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s ease;
+  }
+  .habit-item.done .habit-check {
+    background: var(--green); border-color: var(--green);
+    animation: habitPop 0.3s ease;
+  }
+  @keyframes habitPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  .habit-check svg { width: 16px; height: 16px; stroke: #fff; stroke-width: 3; opacity: 0; transition: opacity 0.2s; }
+  .habit-item.done .habit-check svg { opacity: 1; }
+  .habit-name { font-size: 15px; font-weight: 600; flex: 1; }
+  .habit-item.done .habit-name { color: var(--muted); }
+  .habit-time { font-size: 11px; color: #444; }
+
+  .today-cal-wrap { margin-top: 28px; }
+  .today-cal-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; text-align: center; }
+  .today-cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center;
+  }
+  .today-cal-day { font-size: 9px; color: #444; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 4px 0; }
+  .today-cal-cell {
+    aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--muted); position: relative;
+  }
+  .today-cal-cell.has-data { background: rgba(34,197,94,0.15); color: var(--green); }
+  .today-cal-cell.full { background: var(--green); color: #000; }
+  .today-cal-cell.is-today { box-shadow: inset 0 0 0 2px var(--accent); color: var(--accent); }
+  .today-cal-cell.future { opacity: 0.3; }
+  .today-cal-cell.empty { visibility: hidden; }
+
+  .today-month-nav {
+    display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px;
+  }
+  .today-month-nav button {
+    background: none; border: 1px solid var(--border); color: var(--text);
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+    font-size: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .today-month-nav .month-label {
+    font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    min-width: 120px; text-align: center;
+  }
 </style>
 </head>
 <body>
 
+<!-- ===== TODAY PAGE ===== -->
+<div class="page active" id="page-today">
+  <div class="container">
+    <div class="page-header">
+      <h1>Today</h1>
+      <div class="line"></div>
+      <div class="sub" id="today-date-label"></div>
+    </div>
+    <div class="today-ring-wrap">
+      <div class="today-ring">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle class="today-ring-bg" cx="80" cy="80" r="70"/>
+          <circle class="today-ring-fill" id="today-ring-circle" cx="80" cy="80" r="70"
+            stroke-dasharray="439.82" stroke-dashoffset="439.82"/>
+        </svg>
+        <div class="today-ring-text">
+          <div class="today-ring-pct" id="today-pct">0%</div>
+          <div class="today-ring-label">complete</div>
+        </div>
+      </div>
+      <div class="today-streak">
+        <span class="streak-num" id="today-streak-num">0</span> day streak
+      </div>
+    </div>
+    <div class="habit-list" id="habit-list"></div>
+    <div class="today-cal-wrap">
+      <div class="today-month-nav">
+        <button onclick="changeCalMonth(-1)">&larr;</button>
+        <div class="month-label" id="cal-month-label"></div>
+        <button onclick="changeCalMonth(1)">&rarr;</button>
+      </div>
+      <div class="today-cal-grid" id="today-cal-grid"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== WORKOUT PAGE ===== -->
-<div class="page active" id="page-workout">
+<div class="page" id="page-workout">
   <div class="container">
     <div class="page-header">
       <h1>Workout</h1>
@@ -447,7 +555,11 @@
 
 <!-- NAV -->
 <nav class="nav">
-  <button class="active" onclick="showPage('workout', this)">
+  <button class="active" onclick="showPage('today', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+    Today
+  </button>
+  <button onclick="showPage('workout', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
     Workout
   </button>
@@ -458,10 +570,6 @@
   <button onclick="showPage('weight', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M6 20V4M18 20v-4"/></svg>
     Weight
-  </button>
-  <button onclick="showPage('stats', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-    Stats
   </button>
 </nav>
 
@@ -486,7 +594,86 @@ function formatDate(d) {
 }
 function getData(key) { try { return JSON.parse(localStorage.getItem(key))||{}; } catch(e) { return {}; } }
 function getArr(key) { try { return JSON.parse(localStorage.getItem(key))||[]; } catch(e) { return []; } }
-function setData(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+function setData(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
+  // Sync to API in background (fire-and-forget)
+  syncToAPI(key, val);
+}
+
+// ===== API SYNC =====
+const SYNC_KEY = localStorage.getItem('trackerApiKey') || '';
+let syncDebounce = {};
+
+function syncToAPI(key, val) {
+  if (!SYNC_KEY) return;
+  // Debounce per key — wait 1s after last change before syncing
+  clearTimeout(syncDebounce[key]);
+  syncDebounce[key] = setTimeout(() => {
+    const dk = dateKey();
+    if (key === 'workouts') {
+      const dayData = val[dk];
+      if (!dayData) return;
+      fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SYNC_KEY },
+        body: JSON.stringify({ type: 'workouts', date: dk, data: dayData }),
+      }).catch(() => {});
+    } else if (key === 'nutrition') {
+      const dayData = val[dk];
+      if (!dayData) return;
+      fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SYNC_KEY },
+        body: JSON.stringify({ type: 'nutrition', date: dk, action: 'replace', data: dayData }),
+      }).catch(() => {});
+    } else if (key === 'weights') {
+      const weight = val[dateKey(new Date())];
+      if (weight === undefined) return;
+      fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SYNC_KEY },
+        body: JSON.stringify({ type: 'weights', date: dateKey(new Date()), data: weight }),
+      }).catch(() => {});
+    }
+  }, 1000);
+}
+
+// Pull API data on page load (API wins for empty local days)
+async function loadFromAPI() {
+  if (!SYNC_KEY) return;
+  try {
+    const dk = dateKey(new Date());
+    const res = await fetch('/api/data?date=' + dk, {
+      headers: { 'Authorization': 'Bearer ' + SYNC_KEY },
+    });
+    if (!res.ok) return;
+    const remote = await res.json();
+
+    // Merge workouts: if local day is empty but remote has data, use remote
+    const localW = getData('workouts');
+    if (remote.workouts && !localW[dk]) {
+      localW[dk] = remote.workouts;
+      localStorage.setItem('workouts', JSON.stringify(localW));
+    }
+
+    // Merge nutrition: if local day is empty but remote has data, use remote
+    const localN = getData('nutrition');
+    if (remote.nutrition && Array.isArray(remote.nutrition) && remote.nutrition.length > 0 && (!localN[dk] || localN[dk].length === 0)) {
+      localN[dk] = remote.nutrition;
+      localStorage.setItem('nutrition', JSON.stringify(localN));
+    }
+
+    // Merge weight: if local missing but remote has it
+    const localWt = getData('weights');
+    if (remote.weight && !localWt[dk]) {
+      localWt[dk] = remote.weight;
+      localStorage.setItem('weights', JSON.stringify(localWt));
+    }
+
+    renderAll();
+  } catch(e) { /* silent fail */ }
+}
+loadFromAPI();
 
 // ===== ADD-ONS (extra cal/pro/fat/carb per serving) =====
 const ADDONS = {
@@ -858,6 +1045,7 @@ function showPage(name, btn) {
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   window.scrollTo(0,0);
+  if (name==='today') renderToday();
   if (name==='stats') renderStats();
   if (name==='nutrition') { document.getElementById('food-search').value=''; renderFoodPicker(); }
 }
@@ -1344,8 +1532,136 @@ function renderStats() {
   document.getElementById('week-overview').innerHTML = weekHtml;
 }
 
+// ===== HABITS / TODAY =====
+const HABITS = [
+  { id: 'walk',       name: 'Morning Walk',       time: '7 AM' },
+  { id: 'workout_am', name: 'AM Workout',          time: '8 AM' },
+  { id: 'bible',      name: 'Read Bible',          time: '9 AM' },
+  { id: 'deep_work',  name: 'Deep Work (3 hrs)',   time: '9–12' },
+  { id: 'protein',    name: '150g+ Protein',       time: 'All day' },
+  { id: 'journal',    name: 'Journal',             time: 'Anytime' },
+  { id: 'workout_pm', name: 'PM Workout',          time: '5 PM' },
+  { id: 'cold_shower',name: 'Cold Shower',         time: 'Anytime' },
+  { id: 'learn',      name: 'Learn Something New', time: 'Anytime' },
+  { id: 'no_phone',   name: 'No Phone til 2:30',   time: 'AM' },
+];
+
+let calViewMonth = new Date().getMonth();
+let calViewYear = new Date().getFullYear();
+
+function getHabits(dk) { return getData('habits')[dk] || []; }
+
+function toggleHabit(habitId) {
+  const dk = dateKey(new Date()); // habits only for today
+  const data = getData('habits');
+  if (!data[dk]) data[dk] = [];
+  const i = data[dk].indexOf(habitId);
+  if (i === -1) data[dk].push(habitId);
+  else data[dk].splice(i, 1);
+  setData('habits', data);
+  renderToday();
+}
+
+function getHabitStreak() {
+  const data = getData('habits');
+  const today = new Date();
+  let streak = 0;
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const dk = dateKey(d);
+    const done = data[dk] || [];
+    // Count a day as "showed up" if at least half the habits are checked
+    if (done.length >= Math.ceil(HABITS.length / 2)) streak++;
+    else if (i > 0) break; // today can be incomplete
+  }
+  return streak;
+}
+
+function changeCalMonth(dir) {
+  calViewMonth += dir;
+  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+  renderToday();
+}
+
+function renderToday() {
+  const today = new Date();
+  const dk = dateKey(today);
+  const checked = getHabits(dk);
+  const pct = HABITS.length > 0 ? Math.round((checked.length / HABITS.length) * 100) : 0;
+
+  // Date label
+  document.getElementById('today-date-label').textContent =
+    DAY_SHORT[today.getDay()] + ', ' + MONTH_SHORT[today.getMonth()] + ' ' + today.getDate();
+
+  // Ring
+  const circ = 2 * Math.PI * 70; // ~439.82
+  const offset = circ - (circ * pct / 100);
+  const ring = document.getElementById('today-ring-circle');
+  ring.style.strokeDashoffset = offset;
+  if (pct === 100) ring.style.stroke = '#22c55e';
+  else if (pct >= 50) ring.style.stroke = '#22c55e';
+  else ring.style.stroke = '#666';
+  document.getElementById('today-pct').textContent = pct + '%';
+
+  // Streak
+  document.getElementById('today-streak-num').textContent = getHabitStreak();
+
+  // Habit list
+  let html = '';
+  HABITS.forEach(h => {
+    const isDone = checked.includes(h.id);
+    html += `<div class="habit-item ${isDone ? 'done' : ''}" onclick="toggleHabit('${h.id}')">
+      <div class="habit-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <div class="habit-name">${h.name}</div>
+      <div class="habit-time">${h.time}</div>
+    </div>`;
+  });
+  document.getElementById('habit-list').innerHTML = html;
+
+  // Calendar
+  const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-label').textContent = MONTH_FULL[calViewMonth] + ' ' + calViewYear;
+
+  const habitData = getData('habits');
+  const firstDay = new Date(calViewYear, calViewMonth, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  const todayDate = today.getDate();
+  const isCurrentMonth = calViewMonth === today.getMonth() && calViewYear === today.getFullYear();
+
+  let calHtml = '';
+  // Day headers
+  ['S','M','T','W','T','F','S'].forEach(d => {
+    calHtml += `<div class="today-cal-day">${d}</div>`;
+  });
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    calHtml += `<div class="today-cal-cell empty"></div>`;
+  }
+  // Day cells
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cellDate = new Date(calViewYear, calViewMonth, d);
+    const cellDk = dateKey(cellDate);
+    const dayHabits = habitData[cellDk] || [];
+    const dayPct = HABITS.length > 0 ? dayHabits.length / HABITS.length : 0;
+    const isFuture = cellDate > today;
+    const isTodayCell = isCurrentMonth && d === todayDate;
+
+    let cls = 'today-cal-cell';
+    if (isFuture) cls += ' future';
+    else if (dayPct >= 1) cls += ' full';
+    else if (dayPct > 0) cls += ' has-data';
+    if (isTodayCell) cls += ' is-today';
+
+    calHtml += `<div class="${cls}">${d}</div>`;
+  }
+  document.getElementById('today-cal-grid').innerHTML = calHtml;
+}
+
 // ===== RENDER ALL =====
-function renderAll() { renderWorkouts(); renderNutrition(); renderWeight(); }
+function renderAll() { renderToday(); renderWorkouts(); renderNutrition(); renderWeight(); }
 renderAll();
 </script>
 </body>
