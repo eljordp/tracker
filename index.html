@@ -279,6 +279,31 @@
   .today-streak { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; color: var(--muted); }
   .today-streak .streak-num { font-size: 18px; font-weight: 800; color: var(--green); }
 
+  .clean-days-wrap {
+    display: flex; gap: 10px; margin-bottom: 24px;
+  }
+  .clean-card {
+    flex: 1; background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 12px; text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .clean-card .clean-num { font-size: 28px; font-weight: 800; }
+  .clean-card .clean-num.active { color: var(--green); }
+  .clean-card .clean-num.zero { color: var(--red); }
+  .clean-card .clean-label {
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px;
+  }
+  .clean-card .clean-best {
+    font-size: 10px; color: var(--muted); margin-top: 6px;
+    border-top: 1px solid var(--border); padding-top: 6px;
+  }
+
+  .habit-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); padding: 16px 0 6px 4px;
+  }
+
   .habit-list { display: flex; flex-direction: column; gap: 2px; }
   .habit-item {
     display: flex; align-items: center; gap: 14px; padding: 16px;
@@ -363,6 +388,7 @@
         <span class="streak-num" id="today-streak-num">0</span> day streak
       </div>
     </div>
+    <div class="clean-days-wrap" id="clean-days"></div>
     <div class="habit-list" id="habit-list"></div>
     <div class="today-cal-wrap">
       <div class="today-month-nav">
@@ -1538,16 +1564,18 @@ function renderStats() {
 
 // ===== HABITS / TODAY =====
 const HABITS = [
-  { id: 'walk',       name: 'Morning Walk',       time: '7 AM',    auto: 'walk',       link: 'workout' },
-  { id: 'workout_am', name: 'AM Workout',          time: '8 AM',    auto: 'am',         link: 'workout' },
-  { id: 'bible',      name: 'Read Bible',          time: '9 AM' },
-  { id: 'deep_work',  name: 'Deep Work (3 hrs)',   time: '9–12' },
-  { id: 'protein',    name: '150g+ Protein',       time: 'All day', auto: 'protein',    link: 'nutrition' },
-  { id: 'journal',    name: 'Journal',             time: 'Anytime' },
-  { id: 'workout_pm', name: 'PM Workout',          time: '5 PM',    auto: 'pm',         link: 'workout' },
-  { id: 'cold_shower',name: 'Cold Shower',         time: 'Anytime' },
-  { id: 'learn',      name: 'Learn Something New', time: 'Anytime' },
-  { id: 'no_scroll',  name: 'No Scroll til Deep Work Done', time: 'AM' },
+  { id: 'walk',       name: 'Morning Walk',        time: '7 AM',    auto: 'walk',    link: 'workout' },
+  { id: 'workout_am', name: 'AM Workout',           time: '8 AM',    auto: 'am',      link: 'workout' },
+  { id: 'bible',      name: 'Read Bible',           time: '9 AM' },
+  { id: 'deep_work',  name: 'Deep Work (3 hrs)',    time: '9–12' },
+  { id: 'no_scroll',  name: 'No Scroll til DW Done',time: 'AM' },
+  { id: 'protein',    name: '150g+ Protein',        time: 'All day', auto: 'protein', link: 'nutrition' },
+  { id: 'workout_pm', name: 'PM Workout',           time: '5 PM',    auto: 'pm',      link: 'workout' },
+  { id: 'cold_shower',name: 'Cold Shower',          time: 'Anytime' },
+  { id: 'journal',    name: 'Journal',              time: 'Evening' },
+  { id: 'no_cart',    name: 'No Cart',              time: 'All day' },
+  { id: 'no_pmo',     name: 'No PMO',               time: 'All day' },
+  { id: 'sleep_10',   name: 'Phone Off by 10',      time: '10 PM' },
 ];
 
 let calViewMonth = new Date().getMonth();
@@ -1611,6 +1639,38 @@ function toggleHabit(habitId) {
   renderToday();
 }
 
+function getCleanStreak(habitId) {
+  const data = getData('habits');
+  const today = new Date();
+  let streak = 0;
+  // Start from yesterday (today is still in progress)
+  for (let i = 1; i < 365; i++) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const dk = dateKey(d);
+    const done = data[dk] || [];
+    if (done.includes(habitId)) streak++;
+    else break;
+  }
+  // If checked today, add today
+  const todayDone = data[dateKey(today)] || [];
+  if (todayDone.includes(habitId)) streak++;
+  return streak;
+}
+
+function getBestCleanStreak(habitId) {
+  const data = getData('habits');
+  const today = new Date();
+  let best = 0, current = 0;
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const dk = dateKey(d);
+    const done = data[dk] || [];
+    if (done.includes(habitId)) { current++; best = Math.max(best, current); }
+    else current = 0;
+  }
+  return best;
+}
+
 function getHabitStreak() {
   const data = getData('habits');
   const today = new Date();
@@ -1656,9 +1716,30 @@ function renderToday() {
   // Streak
   document.getElementById('today-streak-num').textContent = getHabitStreak();
 
-  // Habit list
-  let html = '';
-  HABITS.forEach(h => {
+  // Clean days counters
+  const CLEAN_HABITS = ['no_cart', 'no_pmo'];
+  const CLEAN_LABELS = { no_cart: 'No Cart', no_pmo: 'No PMO' };
+  let cleanHtml = '';
+  CLEAN_HABITS.forEach(hid => {
+    const streak = getCleanStreak(hid);
+    const best = getBestCleanStreak(hid);
+    const cls = streak === 0 ? 'zero' : 'active';
+    cleanHtml += `<div class="clean-card">
+      <div class="clean-num ${cls}">${streak}</div>
+      <div class="clean-label">${CLEAN_LABELS[hid]} Days</div>
+      <div class="clean-best">Best: ${best}</div>
+    </div>`;
+  });
+  document.getElementById('clean-days').innerHTML = cleanHtml;
+
+  // Habit list — grouped with section labels
+  const buildSection = ['walk','workout_am','bible','deep_work','no_scroll','protein','workout_pm','cold_shower','journal'];
+  const disciplineSection = ['no_cart','no_pmo','sleep_10'];
+
+  let html = '<div class="habit-section-label">Build</div>';
+  buildSection.forEach(hid => {
+    const h = HABITS.find(x => x.id === hid);
+    if (!h) return;
     const isDone = checked.includes(h.id);
     const isAuto = !!h.auto;
     html += `<div class="habit-item ${isDone ? 'done' : ''}" onclick="toggleHabit('${h.id}')">
@@ -1667,6 +1748,19 @@ function renderToday() {
       </div>
       <div class="habit-name">${h.name}</div>
       <div class="habit-time">${isAuto && h.link ? '→' : h.time}</div>
+    </div>`;
+  });
+  html += '<div class="habit-section-label">Discipline</div>';
+  disciplineSection.forEach(hid => {
+    const h = HABITS.find(x => x.id === hid);
+    if (!h) return;
+    const isDone = checked.includes(h.id);
+    html += `<div class="habit-item ${isDone ? 'done' : ''}" onclick="toggleHabit('${h.id}')">
+      <div class="habit-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <div class="habit-name">${h.name}</div>
+      <div class="habit-time">${h.time}</div>
     </div>`;
   });
   document.getElementById('habit-list').innerHTML = html;
