@@ -1002,6 +1002,22 @@ const PM_WORKOUTS = {
     {name:'Dead Hang (or hold anything)',detail:'3 x 20 sec'},
     {name:'Lying Leg Raises',detail:'3 x 12'},
   ]},
+  tuesday: { title:'Full Body — Legs & Core', exercises:[
+    {name:'Bodyweight Squats',detail:'4 x 20'},
+    {name:'Bulgarian Split Squats',detail:'3 x 10 each'},
+    {name:'Glute Bridges',detail:'3 x 15'},
+    {name:'Calf Raises (slow)',detail:'4 x 20'},
+    {name:'Plank',detail:'3 x 45 sec'},
+    {name:'Lying Leg Raises',detail:'3 x 15'},
+  ]},
+  thursday: { title:'Full Body — Upper Grind', exercises:[
+    {name:'Push-Ups',detail:'4 x 15'},
+    {name:'Inverted Rows (under table)',detail:'3 x 10'},
+    {name:'Pike Push-Ups',detail:'3 x 10'},
+    {name:'Superman Hold',detail:'3 x 20 sec'},
+    {name:'Diamond Push-Ups',detail:'3 x 10'},
+    {name:'Plank Shoulder Taps',detail:'3 x 12 each'},
+  ]},
   friday: { title:'Full Body C — Conditioning', exercises:[
     {name:'Burpees',detail:'3 x 8'},
     {name:'Jump Squats',detail:'3 x 10'},
@@ -1009,6 +1025,22 @@ const PM_WORKOUTS = {
     {name:'Walking Lunges',detail:'3 x 10 each'},
     {name:'Plank',detail:'3 x 60 sec'},
     {name:'Bodyweight Squats',detail:'1 x 50 (just go)'},
+  ]},
+  saturday: { title:'Full Body D — Endurance', exercises:[
+    {name:'Push-Ups',detail:'4 x 12'},
+    {name:'Bodyweight Squats',detail:'4 x 20'},
+    {name:'Plank',detail:'3 x 45 sec'},
+    {name:'Lunges',detail:'3 x 12 each'},
+    {name:'Mountain Climbers',detail:'3 x 20'},
+    {name:'Glute Bridges',detail:'3 x 15'},
+  ]},
+  sunday: { title:'Active Recovery — Stretch & Move', exercises:[
+    {name:'Cat-Cow',detail:'15 reps (slow)'},
+    {name:"World's Greatest Stretch",detail:'5 each side'},
+    {name:'Pigeon Pose',detail:'45 sec each side'},
+    {name:'Deep Squat Hold',detail:'60 sec'},
+    {name:'Dead Hang',detail:'3 x 30 sec'},
+    {name:'Lying Spinal Twist',detail:'30 sec each side'},
   ]},
 };
 
@@ -1046,8 +1078,6 @@ function renderWorkouts() {
   document.getElementById('workout-date').innerHTML = formatDate(currentDate);
 
   let html = '';
-  const isWorkoutDay = dayNum === 1 || dayNum === 3 || dayNum === 5; // Mon/Wed/Fri
-
   // Morning walk — simplified
   const walkMin = dayData.walk || 0;
   html += `<div class="card">
@@ -1067,17 +1097,11 @@ function renderWorkouts() {
   const amChecked = dayData.am||[];
   html += renderWorkoutCard('am', 'Morning Mobility (10 Min)', AM_ROUTINES.a.exercises, amChecked);
 
-  // PM Workout — Mon/Wed/Fri only
-  if (isWorkoutDay) {
-    const pm = PM_WORKOUTS[dayName];
-    if (pm) {
-      html += renderWorkoutCard('pm', pm.title + ' (~30 min)', pm.exercises, dayData.pm||[]);
-      html += renderWorkoutCard('cooldown', 'Cooldown (5 min)', COOLDOWN, dayData.cooldown||[]);
-    }
-  } else {
-    const isWeekend = dayNum === 0 || dayNum === 6;
-    html += `<div class="card"><div class="card-header"><h2>${isWeekend ? 'Rest Day' : 'Recovery Day'}</h2></div>
-    <div class="card-body" style="font-size:13px;color:var(--muted);">${isWeekend ? 'Full rest. Walk if you want. No pressure.' : 'No workout today. Walk + mobility is enough. Save your energy for tomorrow.'}</div></div>`;
+  // PM Workout — every day has something
+  const pm = PM_WORKOUTS[dayName];
+  if (pm) {
+    html += renderWorkoutCard('pm', pm.title + ' (~30 min)', pm.exercises, dayData.pm||[]);
+    html += renderWorkoutCard('cooldown', 'Cooldown (5 min)', COOLDOWN, dayData.cooldown||[]);
   }
 
   document.getElementById('workout-cards').innerHTML = html;
