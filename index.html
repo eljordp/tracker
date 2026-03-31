@@ -330,7 +330,29 @@
   .habit-item.done .habit-check svg { opacity: 1; }
   .habit-name { font-size: 15px; font-weight: 600; flex: 1; }
   .habit-item.done .habit-name { color: var(--muted); }
-  .habit-time { font-size: 11px; color: #444; }
+  .habit-why {
+    font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; line-height: 1.4;
+  }
+  .habit-time { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+  .habit-impact {
+    display: flex; gap: 2px; margin-top: 3px;
+  }
+  .habit-impact-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #ddd;
+  }
+  .habit-impact-dot.fill-green { background: var(--green); }
+  .habit-impact-dot.fill-red { background: var(--red); }
+
+  .today-score-wrap {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px; margin-bottom: 20px; box-shadow: var(--shadow);
+  }
+  .today-score-header { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .today-score-bar { height: 8px; background: #e5e5e7; border-radius: 4px; overflow: hidden; margin-bottom: 8px; position: relative; }
+  .today-score-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .today-score-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+  .today-score-val { font-weight: 700; }
+  .today-score-msg { font-size: 12px; color: var(--text); margin-top: 10px; line-height: 1.5; font-style: italic; }
 
   .today-cal-wrap { margin-top: 28px; }
   .today-cal-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; text-align: center; }
@@ -388,6 +410,7 @@
         <span class="streak-num" id="today-streak-num">0</span> day streak
       </div>
     </div>
+    <div class="today-score-wrap" id="today-score"></div>
     <div class="clean-days-wrap" id="clean-days"></div>
     <div class="habit-list" id="habit-list"></div>
     <div class="today-cal-wrap">
@@ -1564,18 +1587,33 @@ function renderStats() {
 
 // ===== HABITS / TODAY =====
 const HABITS = [
-  { id: 'walk',       name: 'Morning Walk',        time: '7 AM',    auto: 'walk',    link: 'workout' },
-  { id: 'workout_am', name: 'AM Workout',           time: '8 AM',    auto: 'am',      link: 'workout' },
-  { id: 'bible',      name: 'Read Bible',           time: '9 AM' },
-  { id: 'deep_work',  name: 'Deep Work (3 hrs)',    time: '9–12' },
-  { id: 'no_scroll',  name: 'No Scroll til DW Done',time: 'AM' },
-  { id: 'protein',    name: '150g+ Protein',        time: 'All day', auto: 'protein', link: 'nutrition' },
-  { id: 'workout_pm', name: 'PM Workout',           time: '5 PM',    auto: 'pm',      link: 'workout' },
-  { id: 'cold_shower',name: 'Cold Shower',          time: 'Anytime' },
-  { id: 'journal',    name: 'Journal',              time: 'Evening' },
-  { id: 'no_cart',    name: 'No Cart',              time: 'All day' },
-  { id: 'no_pmo',     name: 'No PMO',               time: 'All day' },
-  { id: 'sleep_10',   name: 'Phone Off by 10',      time: '10 PM' },
+  // BUILD — positive points (doing these ADDS to your capacity)
+  { id: 'walk',       name: 'Morning Walk',         time: '7 AM',    auto: 'walk',    link: 'workout',
+    why: 'Sunlight + movement resets cortisol, boosts dopamine naturally for 6+ hours', impact: 3, type: 'build' },
+  { id: 'workout_am', name: 'AM Workout',            time: '8 AM',    auto: 'am',      link: 'workout',
+    why: 'BDNF release — literally grows new brain cells. Sharpens focus for deep work', impact: 3, type: 'build' },
+  { id: 'bible',      name: 'Read Bible',            time: '9 AM',
+    why: 'Stillness before the grind. Grounds your identity before the world gets loud', impact: 2, type: 'build' },
+  { id: 'deep_work',  name: 'Deep Work (3 hrs)',     time: '9–12',
+    why: 'This is where money gets made. 3 focused hours > 10 distracted hours', impact: 4, type: 'build' },
+  { id: 'no_scroll',  name: 'No Scroll til DW Done', time: 'AM',
+    why: 'Every scroll before deep work burns your best attention on someone else\'s content', impact: 2, type: 'build' },
+  { id: 'protein',    name: '150g+ Protein',         time: 'All day', auto: 'protein', link: 'nutrition',
+    why: 'Muscle recovery + keeps blood sugar stable = less brain fog, fewer cravings', impact: 2, type: 'build' },
+  { id: 'workout_pm', name: 'PM Workout',            time: '5 PM',    auto: 'pm',      link: 'workout',
+    why: 'Burns stress hormones from the day. Sleep quality doubles on workout days', impact: 3, type: 'build' },
+  { id: 'cold_shower',name: 'Cold Shower',           time: 'Anytime',
+    why: '2-3x dopamine increase for 3+ hours. Same boost as nicotine but it heals instead of drains', impact: 3, type: 'build' },
+  { id: 'journal',    name: 'Journal',               time: 'Evening',
+    why: 'Gets the loops out of your head. Stops the 2am overthinking spiral', impact: 1, type: 'build' },
+
+  // DISCIPLINE — avoiding these PREVENTS the drain
+  { id: 'no_cart',    name: 'No Cart',               time: 'All day',
+    why: 'THC tanks your REM sleep, kills motivation hormone (dopamine baseline drops 20%), makes you OK with doing nothing', impact: -4, type: 'discipline' },
+  { id: 'no_pmo',     name: 'No PMO',                time: 'All day',
+    why: 'Biggest dopamine spike your brain gets. After = crashed baseline for 24-48 hrs. That\'s why nothing feels worth doing the next day', impact: -5, type: 'discipline' },
+  { id: 'sleep_10',   name: 'Phone Off by 10',       time: '10 PM',
+    why: 'Blue light + stimulation at night delays melatonin 90 min. You sleep lighter, wake groggier, need more cart to feel normal', impact: -3, type: 'discipline' },
 ];
 
 let calViewMonth = new Date().getMonth();
@@ -1716,6 +1754,40 @@ function renderToday() {
   // Streak
   document.getElementById('today-streak-num').textContent = getHabitStreak();
 
+  // Daily Score — weighted by impact
+  const maxBuild = HABITS.filter(h=>h.type==='build').reduce((s,h)=>s+h.impact,0);
+  const maxDrain = Math.abs(HABITS.filter(h=>h.type==='discipline').reduce((s,h)=>s+h.impact,0));
+  const maxScore = maxBuild + maxDrain;
+  let score = 0;
+  HABITS.forEach(h => {
+    if (checked.includes(h.id)) {
+      score += Math.abs(h.impact);
+    }
+  });
+  const scorePct = Math.round((score / maxScore) * 100);
+  const scoreColor = scorePct >= 80 ? 'var(--green)' : scorePct >= 50 ? 'var(--yellow)' : 'var(--red)';
+
+  // Score messages based on level
+  const SCORE_MSGS = [
+    { min: 0,  msg: "You're running on fumes. Your brain is borrowing from tomorrow to feel OK today. One walk changes the trajectory." },
+    { min: 20, msg: "Barely online. The cart and the screen are eating your potential. Pick one hard thing and do it." },
+    { min: 40, msg: "Getting somewhere. Your dopamine is starting to normalize. Keep pushing — the compound effect kicks in around day 5." },
+    { min: 60, msg: "This is where most people quit. You're past the worst withdrawal. Tomorrow will be easier than today." },
+    { min: 80, msg: "You're operating at a level most people never reach. This is what 50%+ feels like. Imagine 90%." },
+    { min: 95, msg: "Machine mode. You're building the version of yourself that closes $10K months without thinking about it." },
+  ];
+  const scoreMsg = [...SCORE_MSGS].reverse().find(m => scorePct >= m.min).msg;
+
+  let scoreHtml = `<div class="today-score-header">Daily Operating Level</div>
+    <div class="today-score-bar"><div class="today-score-fill" style="width:${scorePct}%;background:${scoreColor};"></div></div>
+    <div class="today-score-labels">
+      <span>Sedated</span>
+      <span class="today-score-val" style="color:${scoreColor};">${scorePct}%</span>
+      <span>Machine</span>
+    </div>
+    <div class="today-score-msg">${scoreMsg}</div>`;
+  document.getElementById('today-score').innerHTML = scoreHtml;
+
   // Clean days counters
   const CLEAN_HABITS = ['no_cart', 'no_pmo'];
   const CLEAN_LABELS = { no_cart: 'No Cart', no_pmo: 'No PMO' };
@@ -1732,37 +1804,33 @@ function renderToday() {
   });
   document.getElementById('clean-days').innerHTML = cleanHtml;
 
-  // Habit list — grouped with section labels
-  const buildSection = ['walk','workout_am','bible','deep_work','no_scroll','protein','workout_pm','cold_shower','journal'];
-  const disciplineSection = ['no_cart','no_pmo','sleep_10'];
-
-  let html = '<div class="habit-section-label">Build</div>';
-  buildSection.forEach(hid => {
-    const h = HABITS.find(x => x.id === hid);
-    if (!h) return;
+  // Habit list — grouped with section labels + why text + impact dots
+  function renderHabitItem(h) {
     const isDone = checked.includes(h.id);
     const isAuto = !!h.auto;
-    html += `<div class="habit-item ${isDone ? 'done' : ''}" onclick="toggleHabit('${h.id}')">
+    const impactAbs = Math.abs(h.impact);
+    const dotClass = h.type === 'discipline' ? 'fill-red' : 'fill-green';
+    const dots = Array(5).fill(0).map((_,i) => `<div class="habit-impact-dot ${i < impactAbs ? dotClass : ''}"></div>`).join('');
+    return `<div class="habit-item ${isDone ? 'done' : ''}" onclick="toggleHabit('${h.id}')">
       <div class="habit-check">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"/></svg>
       </div>
-      <div class="habit-name">${h.name}</div>
+      <div style="flex:1;">
+        <div class="habit-name">${h.name}</div>
+        <div class="habit-why">${h.why}</div>
+        <div class="habit-impact">${dots}</div>
+      </div>
       <div class="habit-time">${isAuto && h.link ? '→' : h.time}</div>
     </div>`;
-  });
-  html += '<div class="habit-section-label">Discipline</div>';
-  disciplineSection.forEach(hid => {
-    const h = HABITS.find(x => x.id === hid);
-    if (!h) return;
-    const isDone = checked.includes(h.id);
-    html += `<div class="habit-item ${isDone ? 'done' : ''}" onclick="toggleHabit('${h.id}')">
-      <div class="habit-check">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"/></svg>
-      </div>
-      <div class="habit-name">${h.name}</div>
-      <div class="habit-time">${h.time}</div>
-    </div>`;
-  });
+  }
+
+  const buildHabits = HABITS.filter(h => h.type === 'build');
+  const discHabits = HABITS.filter(h => h.type === 'discipline');
+
+  let html = '<div class="habit-section-label">Build — these add to your capacity</div>';
+  buildHabits.forEach(h => html += renderHabitItem(h));
+  html += '<div class="habit-section-label">Discipline — these drain you when you fail</div>';
+  discHabits.forEach(h => html += renderHabitItem(h));
   document.getElementById('habit-list').innerHTML = html;
 
   // Calendar
