@@ -421,6 +421,25 @@
   }
   .daily-manifest-input:focus { border-color: #ccc; }
   .daily-manifest-input::placeholder { color: var(--muted); }
+
+  /* WORK SECTION */
+  .work-section-wrap {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow);
+  }
+  .work-textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-size: 14px; padding: 12px; outline: none; resize: none;
+    font-family: inherit; line-height: 1.5; min-height: 60px;
+  }
+  .work-textarea:focus { border-color: #ccc; }
+  .work-textarea::placeholder { color: var(--muted); }
+  .work-crm-link {
+    display: block; width: 100%; background: #f0f0f2; border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+    text-align: center; margin-top: 12px; text-decoration: none;
+  }
+  .work-crm-link:active { background: #e0e0e0; }
 </style>
 </head>
 <body>
@@ -454,6 +473,7 @@
     <div class="today-score-wrap" id="dopamine-tracker"></div>
     <div class="clean-days-wrap" id="clean-days"></div>
     <div class="habit-list" id="habit-list"></div>
+    <div class="work-section-wrap" id="work-section"></div>
     <div class="today-cal-wrap">
       <div class="today-month-nav">
         <button onclick="changeCalMonth(-1)">&larr;</button>
@@ -1596,6 +1616,20 @@ function saveManifest() {
   localStorage.setItem('manifest', JSON.stringify(data));
 }
 
+function savePriorities() {
+  const dk = dateKey(new Date());
+  const data = getData('priorities');
+  data[dk] = document.getElementById('priorities-input').value;
+  localStorage.setItem('priorities', JSON.stringify(data));
+}
+
+function saveFollowups() {
+  const dk = dateKey(new Date());
+  const data = getData('followups');
+  data[dk] = document.getElementById('followups-input').value;
+  localStorage.setItem('followups', JSON.stringify(data));
+}
+
 function changeCalMonth(dir) {
   calViewMonth += dir;
   if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
@@ -1851,6 +1885,21 @@ function renderToday() {
   html += '<div class="habit-section-label">Discipline — these drain you when you fail</div>';
   discHabits.forEach(h => html += renderHabitItem(h));
   document.getElementById('habit-list').innerHTML = html;
+
+  // Work Section
+  const savedPriorities = getData('priorities')[dk] || '';
+  const savedFollowups = getData('followups')[dk] || '';
+  document.getElementById('work-section').innerHTML = `
+    <div class="habit-section-label">Work</div>
+    <div style="margin-bottom:14px;">
+      <div class="daily-manifest-label">Today's 3 Priorities</div>
+      <textarea class="work-textarea" id="priorities-input" placeholder="1.\n2.\n3." oninput="savePriorities()">${savedPriorities}</textarea>
+    </div>
+    <div>
+      <div class="daily-manifest-label">Follow-ups</div>
+      <textarea class="work-textarea" id="followups-input" placeholder="Who to call back, emails to send, things to check on..." oninput="saveFollowups()">${savedFollowups}</textarea>
+    </div>
+    <a class="work-crm-link" href="https://jdlo-crm.vercel.app/" target="_blank" rel="noopener">Open CRM</a>`;
 
   // Calendar
   const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
