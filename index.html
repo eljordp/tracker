@@ -382,6 +382,45 @@
     font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
     min-width: 120px; text-align: center;
   }
+
+  .daily-word-wrap {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow);
+  }
+  .daily-quote {
+    font-size: 16px; font-weight: 600; line-height: 1.5; font-style: italic;
+    color: var(--text); margin-bottom: 8px;
+  }
+  .daily-quote-author {
+    font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px;
+  }
+  .daily-verse-wrap {
+    margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .daily-verse-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--green); margin-bottom: 8px;
+  }
+  .daily-verse {
+    font-size: 14px; line-height: 1.6; color: var(--text);
+  }
+  .daily-verse-ref {
+    font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 6px;
+  }
+  .daily-manifest-wrap {
+    margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .daily-manifest-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .daily-manifest-input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-size: 14px; padding: 12px; outline: none; resize: none;
+    font-family: inherit; line-height: 1.5; min-height: 60px;
+  }
+  .daily-manifest-input:focus { border-color: #ccc; }
+  .daily-manifest-input::placeholder { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -394,6 +433,7 @@
       <div class="line"></div>
       <div class="sub" id="today-date-label"></div>
     </div>
+    <div class="daily-word-wrap" id="daily-word"></div>
     <div class="today-ring-wrap">
       <div class="today-ring">
         <svg width="160" height="160" viewBox="0 0 160 160">
@@ -1549,6 +1589,13 @@ function getHabitStreak() {
   return streak;
 }
 
+function saveManifest() {
+  const dk = dateKey(new Date());
+  const data = getData('manifest');
+  data[dk] = document.getElementById('manifest-input').value;
+  localStorage.setItem('manifest', JSON.stringify(data));
+}
+
 function changeCalMonth(dir) {
   calViewMonth += dir;
   if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
@@ -1556,11 +1603,106 @@ function changeCalMonth(dir) {
   renderToday();
 }
 
+// Daily quotes — gut punches, not motivational poster BS
+const DAILY_QUOTES = [
+  { text: "A man who conquers himself is greater than one who conquers a thousand men in battle.", author: "Buddha" },
+  { text: "You are free to choose, but you are not free from the consequence of your choice.", author: "Universal Law" },
+  { text: "Hard times create strong men. Strong men create good times. Good times create weak men. Weak men create hard times.", author: "G. Michael Hopf" },
+  { text: "The man who moves a mountain begins by carrying away small stones.", author: "Confucius" },
+  { text: "Suffer the pain of discipline or suffer the pain of regret.", author: "Jim Rohn" },
+  { text: "You don't rise to the level of your goals. You fall to the level of your systems.", author: "James Clear" },
+  { text: "The cost of being who you were is losing who you could become.", author: "Unknown" },
+  { text: "Stop telling yourself the story. Start telling yourself the truth.", author: "David Goggins" },
+  { text: "Your future self is watching you right now through memories.", author: "Unknown" },
+  { text: "A lion doesn't concern himself with the opinion of sheep.", author: "Tywin Lannister" },
+  { text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln" },
+  { text: "The way you do anything is the way you do everything.", author: "T. Harv Eker" },
+  { text: "You can't cheat the grind. It knows how much you've invested. It won't give you anything you haven't worked for.", author: "Eric Thomas" },
+  { text: "The only person you are destined to become is the person you decide to be.", author: "Ralph Waldo Emerson" },
+  { text: "If you want something you've never had, you must be willing to do something you've never done.", author: "Thomas Jefferson" },
+  { text: "Be not afraid of going slowly, be afraid only of standing still.", author: "Chinese Proverb" },
+  { text: "The impediment to action advances action. What stands in the way becomes the way.", author: "Marcus Aurelius" },
+  { text: "You are not a drop in the ocean. You are the entire ocean in a drop.", author: "Rumi" },
+  { text: "Waste no more time arguing about what a good man should be. Be one.", author: "Marcus Aurelius" },
+  { text: "The successful warrior is the average man, with laser-like focus.", author: "Bruce Lee" },
+  { text: "I fear not the man who has practiced 10,000 kicks once, but the man who has practiced one kick 10,000 times.", author: "Bruce Lee" },
+  { text: "A smooth sea never made a skilled sailor.", author: "Franklin D. Roosevelt" },
+  { text: "Do not pray for an easy life, pray for the strength to endure a difficult one.", author: "Bruce Lee" },
+  { text: "The man who has no imagination has no wings.", author: "Muhammad Ali" },
+  { text: "It's not about how hard you hit. It's about how hard you can get hit and keep moving forward.", author: "Rocky Balboa" },
+  { text: "You were not born to be average. Stop accepting a life that is less than you are capable of living.", author: "Unknown" },
+  { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
+  { text: "First they ignore you, then they laugh at you, then they fight you, then you win.", author: "Mahatma Gandhi" },
+  { text: "Don't tell me what you value, show me your calendar and I'll tell you what you value.", author: "Peter Drucker" },
+  { text: "You will never change your life until you change something you do daily.", author: "John C. Maxwell" },
+  { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+];
+
+// Bible verses — strength, discipline, transformation, faith
+const DAILY_VERSES = [
+  { text: "I can do all things through Christ who strengthens me.", ref: "Philippians 4:13" },
+  { text: "No temptation has overtaken you except what is common to mankind. And God is faithful; he will not let you be tempted beyond what you can bear.", ref: "1 Corinthians 10:13" },
+  { text: "For God gave us a spirit not of fear but of power and love and self-control.", ref: "2 Timothy 1:7" },
+  { text: "Be strong and courageous. Do not be afraid; do not be discouraged, for the LORD your God will be with you wherever you go.", ref: "Joshua 1:9" },
+  { text: "Do you not know that your bodies are temples of the Holy Spirit, who is in you? You are not your own; you were bought at a price. Therefore honor God with your bodies.", ref: "1 Corinthians 6:19-20" },
+  { text: "But they who wait for the LORD shall renew their strength; they shall mount up with wings like eagles; they shall run and not be weary.", ref: "Isaiah 40:31" },
+  { text: "No discipline seems pleasant at the time, but painful. Later on, however, it produces a harvest of righteousness and peace for those who have been trained by it.", ref: "Hebrews 12:11" },
+  { text: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!", ref: "2 Corinthians 5:17" },
+  { text: "Create in me a pure heart, O God, and renew a steadfast spirit within me.", ref: "Psalm 51:10" },
+  { text: "For I know the plans I have for you, declares the LORD, plans to prosper you and not to harm you, plans to give you hope and a future.", ref: "Jeremiah 29:11" },
+  { text: "Trust in the LORD with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.", ref: "Proverbs 3:5-6" },
+  { text: "Brothers, I do not consider that I have made it my own. But one thing I do: forgetting what lies behind and straining forward to what lies ahead.", ref: "Philippians 3:13" },
+  { text: "The LORD is my shepherd, I lack nothing. He makes me lie down in green pastures, he leads me beside quiet waters, he refreshes my soul.", ref: "Psalm 23:1-3" },
+  { text: "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.", ref: "Romans 8:28" },
+  { text: "Do not conform to the pattern of this world, but be transformed by the renewing of your mind.", ref: "Romans 12:2" },
+  { text: "Whatever you do, work at it with all your heart, as working for the Lord, not for human masters.", ref: "Colossians 3:23" },
+  { text: "The LORD is close to the brokenhearted and saves those who are crushed in spirit.", ref: "Psalm 34:18" },
+  { text: "Come to me, all you who are weary and burdened, and I will give you rest.", ref: "Matthew 11:28" },
+  { text: "Be watchful, stand firm in the faith, act like men, be strong.", ref: "1 Corinthians 16:13" },
+  { text: "Commit to the LORD whatever you do, and he will establish your plans.", ref: "Proverbs 16:3" },
+  { text: "The thief comes only to steal and kill and destroy; I have come that they may have life, and have it to the full.", ref: "John 10:10" },
+  { text: "He who walks with wise men will be wise, but the companion of fools will suffer harm.", ref: "Proverbs 13:20" },
+  { text: "Blessed is the man who remains steadfast under trial, for when he has stood the test he will receive the crown of life.", ref: "James 1:12" },
+  { text: "Set your minds on things that are above, not on things that are on earth.", ref: "Colossians 3:2" },
+  { text: "Above all else, guard your heart, for everything you do flows from it.", ref: "Proverbs 4:23" },
+  { text: "Have I not commanded you? Be strong and courageous. Do not be frightened, and do not be dismayed.", ref: "Joshua 1:9" },
+  { text: "The fear of the LORD is the beginning of wisdom, and knowledge of the Holy One is understanding.", ref: "Proverbs 9:10" },
+  { text: "Delight yourself in the LORD, and he will give you the desires of your heart.", ref: "Psalm 37:4" },
+  { text: "I have fought the good fight, I have finished the race, I have kept the faith.", ref: "2 Timothy 4:7" },
+  { text: "Be still, and know that I am God.", ref: "Psalm 46:10" },
+  { text: "But seek first his kingdom and his righteousness, and all these things will be given to you as well.", ref: "Matthew 6:33" },
+];
+
+function getDailyIndex(arr) {
+  // Deterministic daily index based on date — same quote/verse all day
+  const today = new Date();
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(),0,0)) / 86400000);
+  return dayOfYear % arr.length;
+}
+
 function renderToday() {
   const today = new Date();
   const dk = dateKey(today);
   const checked = getHabits(dk);
   const pct = HABITS.length > 0 ? Math.round((checked.length / HABITS.length) * 100) : 0;
+
+  // Daily Word — quote + verse + manifestation journal
+  const quote = DAILY_QUOTES[getDailyIndex(DAILY_QUOTES)];
+  const verse = DAILY_VERSES[getDailyIndex(DAILY_VERSES)];
+  const savedManifest = getData('manifest')[dk] || '';
+
+  let wordHtml = `<div class="daily-quote">"${quote.text}"</div>
+    <div class="daily-quote-author">— ${quote.author}</div>
+    <div class="daily-verse-wrap">
+      <div class="daily-verse-label">Today's Word</div>
+      <div class="daily-verse">${verse.text}</div>
+      <div class="daily-verse-ref">— ${verse.ref}</div>
+    </div>
+    <div class="daily-manifest-wrap">
+      <div class="daily-manifest-label">Speak it into existence</div>
+      <textarea class="daily-manifest-input" id="manifest-input" placeholder="What are you building? What are you becoming? Write it like it's already done..." oninput="saveManifest()">${savedManifest}</textarea>
+    </div>`;
+  document.getElementById('daily-word').innerHTML = wordHtml;
 
   // Date label
   document.getElementById('today-date-label').textContent =
