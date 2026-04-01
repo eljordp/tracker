@@ -242,6 +242,59 @@
   .diff.down { color: var(--green); }
   .diff.up { color: var(--red); }
 
+  /* DISCIPLINE PAGE */
+  .disc-hero {
+    text-align: center; padding: 28px 0 20px;
+  }
+  .disc-streak-num {
+    font-size: 72px; font-weight: 900; line-height: 1; letter-spacing: -3px;
+    transition: color 0.4s;
+  }
+  .disc-streak-num.zero { color: var(--red); }
+  .disc-streak-num.low { color: var(--yellow); }
+  .disc-streak-num.mid { color: var(--green); }
+  .disc-streak-num.high { color: #007aff; }
+  .disc-streak-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .disc-milestone-bar { height: 6px; background: #e5e5e7; border-radius: 3px; overflow: hidden; margin: 16px 0 6px; }
+  .disc-milestone-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; background: var(--green); }
+  .disc-milestone-label { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+  .disc-tabs { display: flex; gap: 0; background: #f0f0f2; border-radius: 10px; padding: 3px; margin-bottom: 20px; }
+  .disc-tab { flex: 1; background: none; border: none; border-radius: 8px; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.2s; }
+  .disc-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .disc-slip-btn {
+    width: 100%; padding: 16px; background: #fff5f5; border: 1.5px solid #ffcdd2;
+    border-radius: 12px; color: var(--red); font-size: 14px; font-weight: 700;
+    cursor: pointer; margin-bottom: 14px; transition: all 0.2s;
+  }
+  .disc-slip-btn:active { background: #ffe5e5; }
+  .disc-stats-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .disc-stat { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+  .disc-stat .dsn { font-size: 24px; font-weight: 800; }
+  .disc-stat .dsl { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; }
+  .disc-trigger-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .disc-tag {
+    background: #f0f0f2; border: 1px solid var(--border); border-radius: 20px;
+    padding: 6px 14px; font-size: 12px; cursor: pointer; transition: all 0.15s; color: var(--muted);
+  }
+  .disc-tag.on { background: #fff0f0; border-color: var(--red); color: var(--red); }
+  .pattern-row {
+    display: flex; align-items: flex-start; gap: 10px; padding: 10px 0;
+    border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  .pattern-row:last-child { border-bottom: none; }
+  .pattern-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+  .pattern-text { flex: 1; line-height: 1.5; }
+  .pattern-text strong { font-weight: 700; }
+  .milestones-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .milestone-chip {
+    text-align: center; padding: 10px 4px; border-radius: 10px;
+    background: #f5f5f7; border: 1px solid var(--border);
+  }
+  .milestone-chip.reached { background: #dcfce7; border-color: #86efac; }
+  .milestone-chip .mc-num { font-size: 15px; font-weight: 800; }
+  .milestone-chip .mc-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .milestone-chip.reached .mc-num { color: var(--green-dim); }
+
   /* STATS */
   .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; box-shadow: var(--shadow); }
@@ -556,6 +609,20 @@
       </div>
     </div>
 
+    <!-- Quick Log -->
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-body" style="padding:14px 16px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Quick Log</div>
+        <div style="display:flex;gap:8px;">
+          <input id="quick-log-input" placeholder="2 chicken breasts and rice..." autocomplete="off"
+                 style="flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#f5f5f7;outline:none;font-family:inherit;"
+                 onkeydown="if(event.key==='Enter')quickLogFood()">
+          <button onclick="quickLogFood()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Log</button>
+        </div>
+        <div id="quick-log-confirm" style="font-size:12px;color:var(--green-dim);margin-top:8px;min-height:16px;"></div>
+      </div>
+    </div>
+
     <!-- Search -->
     <div class="search-wrap">
       <span class="search-icon">&#8981;</span>
@@ -639,6 +706,76 @@
   </div>
 </div>
 
+<!-- ===== DISCIPLINE PAGE ===== -->
+<div class="page" id="page-discipline">
+  <div class="container">
+    <div class="page-header">
+      <h1>Discipline</h1>
+      <div class="line"></div>
+      <div class="sub">The hardest war is the one inside your head.</div>
+    </div>
+
+    <!-- Tracker tabs -->
+    <div class="disc-tabs">
+      <button class="disc-tab active" id="disc-tab-cart" onclick="switchDisc('cart')">No Cart</button>
+      <button class="disc-tab" id="disc-tab-pmo" onclick="switchDisc('pmo')">No PMO</button>
+    </div>
+
+    <!-- Hero streak -->
+    <div class="disc-hero" id="disc-hero">
+      <div class="disc-streak-num" id="disc-streak-num">0</div>
+      <div class="disc-streak-label">days clean</div>
+      <div class="disc-milestone-bar"><div class="disc-milestone-fill" id="disc-milestone-fill" style="width:0%"></div></div>
+      <div class="disc-milestone-label"><span id="disc-mile-prev">0</span><span id="disc-mile-msg">Next: 1 day</span><span id="disc-mile-next">1</span></div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="disc-stats-row">
+      <div class="disc-stat"><div class="dsn" id="disc-best">0</div><div class="dsl">Best Streak</div></div>
+      <div class="disc-stat"><div class="dsn" id="disc-relapses">0</div><div class="dsl">Total Relapses</div></div>
+      <div class="disc-stat"><div class="dsn" id="disc-avg">—</div><div class="dsl">Avg Streak</div></div>
+    </div>
+
+    <!-- Slip button -->
+    <button class="disc-slip-btn" onclick="openSlipModal()">I slipped — reset & keep going</button>
+
+    <!-- Milestones -->
+    <div class="card">
+      <div class="card-header"><h2>Milestones</h2></div>
+      <div class="card-body">
+        <div class="milestones-grid" id="disc-milestones"></div>
+      </div>
+    </div>
+
+    <!-- Patterns -->
+    <div class="card" id="disc-patterns-card" style="display:none;">
+      <div class="card-header"><h2>Your Patterns</h2><span class="badge" id="disc-patterns-badge">learning...</span></div>
+      <div class="card-body"><div id="disc-patterns"></div></div>
+    </div>
+
+    <!-- Relapse log -->
+    <div class="card" id="disc-log-card" style="display:none;">
+      <div class="card-header"><h2>History</h2></div>
+      <div class="card-body"><div id="disc-log"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIP MODAL -->
+<div class="modal-overlay" id="slip-modal">
+  <div class="modal">
+    <h3>You slipped.</h3>
+    <div class="modal-sub">It happens. Log it, learn from it, reset. Every day 1 is just another rep.</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">What was the trigger? (optional)</div>
+    <div class="disc-trigger-tags" id="slip-tags"></div>
+    <textarea id="slip-note" placeholder="Anything else? (optional)" style="width:100%;background:#f5f5f7;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:13px;font-family:inherit;color:var(--text);resize:none;height:70px;outline:none;margin-bottom:16px;margin-top:8px;"></textarea>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeSlipModal()">Cancel</button>
+      <button class="modal-add" style="background:var(--red);" onclick="logSlip()">Log & Reset</button>
+    </div>
+  </div>
+</div>
+
 <!-- QTY MODAL -->
 <div class="modal-overlay" id="qty-modal">
   <div class="modal">
@@ -684,6 +821,10 @@
   <button onclick="showPage('weight', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M6 20V4M18 20v-4"/></svg>
     Weight
+  </button>
+  <button onclick="showPage('discipline', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Discipline
   </button>
 </nav>
 
@@ -852,17 +993,17 @@ const FOOD_ADDONS = {
 // ===== FOOD DATABASE =====
 const FOODS = [
   // PROTEIN
-  { id:'chicken-breast', name:'Chicken Breast', serving:'4 oz', cat:'protein', cal:187, pro:35, fat:4, carb:0 },
-  { id:'chicken-thigh', name:'Chicken Thighs', serving:'4 oz', cat:'protein', cal:232, pro:28, fat:13, carb:0 },
-  { id:'grilled-chicken', name:'Grilled Chicken', serving:'4 oz', cat:'protein', cal:187, pro:35, fat:4, carb:0 },
+  { id:'chicken-breast', name:'Chicken Breast', serving:'4oz', cat:'protein', cal:187, pro:35, fat:4, carb:0 },
+  { id:'chicken-thigh', name:'Chicken Thighs', serving:'4oz', cat:'protein', cal:232, pro:28, fat:13, carb:0 },
+  { id:'grilled-chicken', name:'Grilled Chicken', serving:'4oz', cat:'protein', cal:187, pro:35, fat:4, carb:0 },
   { id:'eggs', name:'Eggs', serving:'1 egg', cat:'protein', cal:72, pro:6, fat:5, carb:0 },
   { id:'egg-whites', name:'Egg Whites', serving:'3 whites', cat:'protein', cal:51, pro:11, fat:0, carb:0 },
-  { id:'ground-beef', name:'Ground Beef (85%)', serving:'4 oz', cat:'protein', cal:243, pro:28, fat:14, carb:0 },
-  { id:'ground-turkey', name:'Ground Turkey', serving:'4 oz', cat:'protein', cal:170, pro:22, fat:9, carb:0 },
-  { id:'steak', name:'Steak', serving:'6 oz', cat:'protein', cal:360, pro:42, fat:20, carb:0 },
-  { id:'salmon', name:'Salmon', serving:'4 oz', cat:'protein', cal:234, pro:25, fat:14, carb:0 },
-  { id:'tilapia', name:'Tilapia', serving:'4 oz', cat:'protein', cal:110, pro:23, fat:2, carb:0 },
-  { id:'shrimp', name:'Shrimp', serving:'4 oz', cat:'protein', cal:120, pro:23, fat:2, carb:0 },
+  { id:'ground-beef', name:'Ground Beef (85%)', serving:'4oz', cat:'protein', cal:243, pro:28, fat:14, carb:0 },
+  { id:'ground-turkey', name:'Ground Turkey', serving:'4oz', cat:'protein', cal:170, pro:22, fat:9, carb:0 },
+  { id:'steak', name:'Steak', serving:'6oz', cat:'protein', cal:360, pro:42, fat:20, carb:0 },
+  { id:'salmon', name:'Salmon', serving:'4oz', cat:'protein', cal:234, pro:25, fat:14, carb:0 },
+  { id:'tilapia', name:'Tilapia', serving:'4oz', cat:'protein', cal:110, pro:23, fat:2, carb:0 },
+  { id:'shrimp', name:'Shrimp', serving:'4oz', cat:'protein', cal:120, pro:23, fat:2, carb:0 },
   { id:'greek-yogurt', name:'Greek Yogurt', serving:'1 cup', cat:'protein', cal:130, pro:22, fat:0, carb:9 },
 
   // CARBS
@@ -881,7 +1022,7 @@ const FOODS = [
   { id:'olive-oil', name:'Olive Oil', serving:'1 tbsp', cat:'fats', cal:119, pro:0, fat:14, carb:0 },
   { id:'peanut-butter', name:'Peanut Butter', serving:'2 tbsp', cat:'fats', cal:188, pro:8, fat:16, carb:6 },
   { id:'almonds', name:'Almonds', serving:'1 oz (23)', cat:'fats', cal:164, pro:6, fat:14, carb:6 },
-  { id:'mixed-nuts', name:'Mixed Nuts', serving:'1 oz', cat:'fats', cal:172, pro:5, fat:15, carb:6 },
+  { id:'mixed-nuts', name:'Mixed Nuts', serving:'1oz', cat:'fats', cal:172, pro:5, fat:15, carb:6 },
   { id:'brazil-nuts', name:'Brazil Nuts', serving:'3 nuts', cat:'fats', cal:99, pro:2, fat:10, carb:1 },
 
   // VEGGIES
@@ -892,17 +1033,121 @@ const FOODS = [
   { id:'onion', name:'Onion', serving:'1 medium', cat:'veggies', cal:44, pro:1, fat:0, carb:10 },
   { id:'salad-greens', name:'Salad / Greens', serving:'2 cups', cat:'veggies', cal:20, pro:2, fat:0, carb:4 },
 
+  // MORE PROTEIN
+  { id:'tuna-can', name:'Tuna (canned)', serving:'1 can (5oz)', cat:'protein', cal:130, pro:28, fat:1, carb:0 },
+  { id:'cottage-cheese', name:'Cottage Cheese', serving:'1 cup', cat:'protein', cal:206, pro:28, fat:4, carb:11 },
+  { id:'turkey-breast', name:'Turkey Breast', serving:'4oz', cat:'protein', cal:160, pro:30, fat:3, carb:0 },
+  { id:'deli-turkey', name:'Deli Turkey', serving:'4 slices', cat:'protein', cal:90, pro:18, fat:1, carb:2 },
+  { id:'deli-chicken', name:'Deli Chicken', serving:'4 slices', cat:'protein', cal:90, pro:18, fat:1, carb:1 },
+  { id:'deli-ham', name:'Deli Ham', serving:'4 slices', cat:'protein', cal:100, pro:14, fat:4, carb:2 },
+  { id:'rotisserie-chicken', name:'Rotisserie Chicken', serving:'4oz', cat:'protein', cal:220, pro:30, fat:11, carb:0 },
+  { id:'beef-jerky', name:'Beef Jerky', serving:'1oz', cat:'protein', cal:116, pro:9, fat:7, carb:3 },
+  { id:'canned-salmon', name:'Canned Salmon', serving:'1 can (5oz)', cat:'protein', cal:200, pro:30, fat:9, carb:0 },
+  { id:'sardines', name:'Sardines', serving:'1 can', cat:'protein', cal:190, pro:23, fat:11, carb:0 },
+  { id:'hard-boiled-egg', name:'Hard Boiled Eggs', serving:'1 egg', cat:'protein', cal:72, pro:6, fat:5, carb:0 },
+  { id:'fairlife-shake', name:'Fairlife Protein Shake', serving:'1 bottle', cat:'protein', cal:150, pro:30, fat:2, carb:4 },
+  { id:'premier-protein', name:'Premier Protein Shake', serving:'1 shake', cat:'protein', cal:160, pro:30, fat:3, carb:5 },
+
+  // MORE CARBS
+  { id:'brown-rice', name:'Brown Rice', serving:'1 cup cooked', cat:'carbs', cal:216, pro:5, fat:2, carb:45 },
+  { id:'quinoa', name:'Quinoa', serving:'1 cup cooked', cat:'carbs', cal:222, pro:8, fat:4, carb:39 },
+  { id:'tortilla-flour', name:'Flour Tortilla', serving:'1 large', cat:'carbs', cal:210, pro:5, fat:5, carb:36 },
+  { id:'tortilla-corn', name:'Corn Tortilla', serving:'2 tortillas', cat:'carbs', cal:120, pro:3, fat:2, carb:24 },
+  { id:'bagel', name:'Bagel', serving:'1 bagel', cat:'carbs', cal:270, pro:11, fat:1, carb:53 },
+  { id:'english-muffin', name:'English Muffin', serving:'1 muffin', cat:'carbs', cal:134, pro:5, fat:1, carb:26 },
+  { id:'cereal', name:'Cereal', serving:'1 cup', cat:'carbs', cal:150, pro:3, fat:1, carb:33 },
+  { id:'granola', name:'Granola', serving:'1/2 cup', cat:'carbs', cal:297, pro:7, fat:10, carb:44 },
+  { id:'white-potato-baked', name:'Baked Potato', serving:'1 large', cat:'carbs', cal:278, pro:7, fat:0, carb:63 },
+  { id:'yam', name:'Yam', serving:'1 cup cubed', cat:'carbs', cal:177, pro:2, fat:0, carb:42 },
+  { id:'pita', name:'Pita Bread', serving:'1 pita', cat:'carbs', cal:165, pro:5, fat:1, carb:33 },
+  { id:'crackers', name:'Crackers', serving:'10 crackers', cat:'carbs', cal:130, pro:2, fat:4, carb:21 },
+  { id:'corn', name:'Corn', serving:'1 cup', cat:'carbs', cal:132, pro:5, fat:2, carb:29 },
+  { id:'lentils', name:'Lentils', serving:'1/2 cup cooked', cat:'carbs', cal:115, pro:9, fat:0, carb:20 },
+  { id:'chickpeas', name:'Chickpeas', serving:'1/2 cup', cat:'carbs', cal:134, pro:7, fat:2, carb:22 },
+
+  // MORE FATS
+  { id:'cashews', name:'Cashews', serving:'1oz', cat:'fats', cal:157, pro:5, fat:12, carb:9 },
+  { id:'walnuts', name:'Walnuts', serving:'1 oz (14 halves)', cat:'fats', cal:185, pro:4, fat:18, carb:4 },
+  { id:'sunflower-seeds', name:'Sunflower Seeds', serving:'1oz', cat:'fats', cal:165, pro:5, fat:14, carb:7 },
+  { id:'almond-butter', name:'Almond Butter', serving:'2 tbsp', cat:'fats', cal:196, pro:7, fat:18, carb:6 },
+  { id:'cheese', name:'Cheese', serving:'1 oz slice', cat:'fats', cal:113, pro:7, fat:9, carb:0 },
+  { id:'cheddar', name:'Cheddar Cheese', serving:'1oz', cat:'fats', cal:113, pro:7, fat:9, carb:0 },
+  { id:'mozzarella', name:'Mozzarella', serving:'1oz', cat:'fats', cal:85, pro:6, fat:6, carb:1 },
+  { id:'butter', name:'Butter', serving:'1 tbsp', cat:'fats', cal:102, pro:0, fat:12, carb:0 },
+  { id:'coconut-oil', name:'Coconut Oil', serving:'1 tbsp', cat:'fats', cal:121, pro:0, fat:14, carb:0 },
+  { id:'whole-milk', name:'Whole Milk', serving:'1 cup', cat:'fats', cal:149, pro:8, fat:8, carb:12 },
+  { id:'almond-milk', name:'Almond Milk', serving:'1 cup unsweetened', cat:'fats', cal:30, pro:1, fat:3, carb:1 },
+  { id:'cream-cheese', name:'Cream Cheese', serving:'2 tbsp', cat:'fats', cal:99, pro:2, fat:10, carb:1 },
+
+  // MORE VEGGIES
+  { id:'tomato', name:'Tomato', serving:'1 medium', cat:'veggies', cal:22, pro:1, fat:0, carb:5 },
+  { id:'cucumber', name:'Cucumber', serving:'1 cup sliced', cat:'veggies', cal:16, pro:1, fat:0, carb:4 },
+  { id:'celery', name:'Celery', serving:'2 stalks', cat:'veggies', cal:12, pro:1, fat:0, carb:2 },
+  { id:'kale', name:'Kale', serving:'2 cups raw', cat:'veggies', cal:33, pro:3, fat:0, carb:7 },
+  { id:'zucchini', name:'Zucchini', serving:'1 cup', cat:'veggies', cal:19, pro:1, fat:0, carb:4 },
+  { id:'mushrooms', name:'Mushrooms', serving:'1 cup', cat:'veggies', cal:15, pro:2, fat:0, carb:2 },
+  { id:'asparagus', name:'Asparagus', serving:'5 spears', cat:'veggies', cal:20, pro:2, fat:0, carb:4 },
+  { id:'green-beans', name:'Green Beans', serving:'1 cup', cat:'veggies', cal:31, pro:2, fat:0, carb:7 },
+  { id:'carrots', name:'Carrots', serving:'1 cup', cat:'veggies', cal:52, pro:1, fat:0, carb:12 },
+  { id:'romaine', name:'Romaine Lettuce', serving:'2 cups', cat:'veggies', cal:16, pro:1, fat:0, carb:3 },
+  { id:'arugula', name:'Arugula', serving:'2 cups', cat:'veggies', cal:10, pro:1, fat:0, carb:1 },
+  { id:'cabbage', name:'Cabbage', serving:'1 cup', cat:'veggies', cal:22, pro:1, fat:0, carb:5 },
+  { id:'edamame', name:'Edamame', serving:'1/2 cup shelled', cat:'veggies', cal:94, pro:9, fat:4, carb:8 },
+
   // SNACKS / OTHER
   { id:'apple', name:'Apple', serving:'1 apple', cat:'snacks', cal:95, pro:0, fat:0, carb:25 },
   { id:'berries', name:'Berries', serving:'1 cup', cat:'snacks', cal:85, pro:1, fat:0, carb:21 },
+  { id:'strawberries', name:'Strawberries', serving:'1 cup', cat:'snacks', cal:49, pro:1, fat:0, carb:12 },
+  { id:'blueberries', name:'Blueberries', serving:'1 cup', cat:'snacks', cal:84, pro:1, fat:0, carb:21 },
+  { id:'mango', name:'Mango', serving:'1 cup sliced', cat:'snacks', cal:99, pro:1, fat:0, carb:25 },
+  { id:'grapes', name:'Grapes', serving:'1 cup', cat:'snacks', cal:104, pro:1, fat:0, carb:27 },
+  { id:'watermelon', name:'Watermelon', serving:'2 cups', cat:'snacks', cal:86, pro:2, fat:0, carb:22 },
+  { id:'orange', name:'Orange', serving:'1 orange', cat:'snacks', cal:62, pro:1, fat:0, carb:15 },
+  { id:'pineapple', name:'Pineapple', serving:'1 cup', cat:'snacks', cal:82, pro:1, fat:0, carb:22 },
   { id:'dates', name:'Dates', serving:'2 dates', cat:'snacks', cal:133, pro:1, fat:0, carb:36 },
   { id:'honey', name:'Honey', serving:'1 tbsp', cat:'snacks', cal:64, pro:0, fat:0, carb:17 },
   { id:'salsa', name:'Salsa', serving:'2 tbsp', cat:'snacks', cal:10, pro:0, fat:0, carb:2 },
   { id:'protein-shake', name:'Protein Shake', serving:'1 scoop + water', cat:'snacks', cal:120, pro:25, fat:1, carb:3 },
+  { id:'protein-bar', name:'Protein Bar', serving:'1 bar', cat:'snacks', cal:200, pro:20, fat:7, carb:22 },
+  { id:'quest-bar', name:'Quest Bar', serving:'1 bar', cat:'snacks', cal:190, pro:21, fat:7, carb:21 },
+  { id:'rice-cakes', name:'Rice Cakes', serving:'2 cakes', cat:'snacks', cal:70, pro:1, fat:0, carb:15 },
+  { id:'dark-chocolate', name:'Dark Chocolate', serving:'1oz', cat:'snacks', cal:170, pro:2, fat:12, carb:13 },
+  { id:'chips', name:'Chips', serving:'1 oz (about 15)', cat:'snacks', cal:152, pro:2, fat:10, carb:15 },
+  { id:'popcorn', name:'Popcorn', serving:'3 cups popped', cat:'snacks', cal:93, pro:3, fat:1, carb:19 },
   { id:'coffee-black', name:'Black Coffee', serving:'1 cup', cat:'snacks', cal:5, pro:0, fat:0, carb:0 },
+  { id:'oj', name:'Orange Juice', serving:'1 cup', cat:'snacks', cal:112, pro:2, fat:0, carb:26 },
+  { id:'gatorade', name:'Gatorade', serving:'1 bottle (20oz)', cat:'snacks', cal:140, pro:0, fat:0, carb:36 },
+  { id:'green-tea', name:'Green Tea', serving:'1 cup', cat:'snacks', cal:2, pro:0, fat:0, carb:0 },
+
+  // FAST FOOD / MEALS
+  { id:'chipotle-bowl', name:'Chipotle Bowl (chicken)', serving:'1 bowl', cat:'meals', cal:840, pro:65, fat:28, carb:85 },
+  { id:'chipotle-burrito', name:'Chipotle Burrito (chicken)', serving:'1 burrito', cat:'meals', cal:1025, pro:67, fat:33, carb:115 },
+  { id:'burrito', name:'Burrito', serving:'1 burrito', cat:'meals', cal:900, pro:40, fat:35, carb:100 },
+  { id:'taco', name:'Taco', serving:'1 taco', cat:'meals', cal:210, pro:12, fat:10, carb:21 },
+  { id:'burger', name:'Burger', serving:'1 burger', cat:'meals', cal:540, pro:32, fat:28, carb:43 },
+  { id:'cheeseburger', name:'Cheeseburger', serving:'1 burger', cat:'meals', cal:640, pro:36, fat:35, carb:43 },
+  { id:'pizza-slice', name:'Pizza Slice', serving:'1 slice', cat:'meals', cal:285, pro:12, fat:10, carb:36 },
+  { id:'sushi-roll', name:'Sushi Roll', serving:'8 pieces', cat:'meals', cal:350, pro:15, fat:4, carb:64 },
+  { id:'ramen', name:'Ramen', serving:'1 bowl', cat:'meals', cal:600, pro:30, fat:20, carb:70 },
+  { id:'chicken-sandwich', name:'Chicken Sandwich', serving:'1 sandwich', cat:'meals', cal:480, pro:35, fat:14, carb:50 },
+  { id:'mcdonalds-quarter-pounder', name:"McDonald's Quarter Pounder", serving:'1 burger', cat:'meals', cal:520, pro:30, fat:26, carb:43 },
+  { id:'chick-fil-a-sandwich', name:'Chick-fil-A Sandwich', serving:'1 sandwich', cat:'meals', cal:470, pro:28, fat:19, carb:49 },
+  { id:'subway-footlong', name:'Subway Footlong (turkey)', serving:'1 sandwich', cat:'meals', cal:560, pro:38, fat:8, carb:90 },
+  { id:'chicken-rice-bowl', name:'Chicken & Rice Bowl', serving:'1 bowl', cat:'meals', cal:550, pro:45, fat:8, carb:65 },
+  { id:'stir-fry', name:'Stir Fry (chicken)', serving:'1 cup', cat:'meals', cal:350, pro:30, fat:10, carb:32 },
+  { id:'fried-rice', name:'Fried Rice', serving:'1 cup', cat:'meals', cal:290, pro:8, fat:9, carb:45 },
+  { id:'sandwich', name:'Sandwich', serving:'1 sandwich', cat:'meals', cal:380, pro:20, fat:12, carb:45 },
+  { id:'quesadilla', name:'Quesadilla', serving:'1 quesadilla', cat:'meals', cal:520, pro:25, fat:28, carb:42 },
+  { id:'omelette', name:'Omelette (3 egg)', serving:'1 omelette', cat:'meals', cal:280, pro:20, fat:18, carb:4 },
+  { id:'acai-bowl', name:'Acai Bowl', serving:'1 bowl', cat:'meals', cal:400, pro:8, fat:14, carb:62 },
+  { id:'smoothie', name:'Smoothie', serving:'16 oz', cat:'meals', cal:280, pro:5, fat:3, carb:58 },
+  { id:'protein-smoothie', name:'Protein Smoothie', serving:'16 oz', cat:'meals', cal:350, pro:30, fat:5, carb:45 },
+  { id:'wings', name:'Chicken Wings', serving:'6 wings', cat:'meals', cal:430, pro:36, fat:29, carb:3 },
+  { id:'fries', name:'French Fries', serving:'medium', cat:'meals', cal:365, pro:4, fat:17, carb:48 },
+  { id:'soup', name:'Soup (chicken noodle)', serving:'1 cup', cat:'meals', cal:120, pro:8, fat:3, carb:15 },
 ];
 
-const CATEGORIES = ['all','protein','carbs','fats','veggies','snacks'];
+const CATEGORIES = ['all','protein','carbs','fats','veggies','snacks','meals'];
 let activeCategory = 'all';
 
 // ===== MODAL STATE =====
@@ -1120,7 +1365,8 @@ function showPage(name, btn) {
   window.scrollTo(0,0);
   if (name==='today') renderToday();
   if (name==='stats') renderStats();
-  if (name==='nutrition') { document.getElementById('food-search').value=''; renderFoodPicker(); }
+  if (name==='nutrition') { document.getElementById('food-search').value=''; activeCategory='all'; renderFoodPicker(); }
+  if (name==='discipline') renderDisc();
 }
 
 function changeDate(dir) {
@@ -1148,8 +1394,9 @@ function renderWorkouts() {
         <button class="btn-sm" onclick="setWalk(30)" style="${walkMin===30?'background:#000;color:#fff;border-color:#000;':''}">30m</button>
         <button class="btn-sm" onclick="setWalk(45)" style="${walkMin===45?'background:#000;color:#fff;border-color:#000;':''}">45m</button>
         <button class="btn-sm" onclick="setWalk(60)" style="${walkMin===60?'background:#000;color:#fff;border-color:#000;':''}">60m</button>
+        <button class="btn-sm" onclick="setWalk(90)" style="${walkMin===90?'background:#000;color:#fff;border-color:#000;':''}">90m</button>
       </div>
-      ${walkMin > 0 ? `<div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">${walkMin >= 45 ? 'Solid. Cortisol reset + natural dopamine boost locked in.' : walkMin >= 30 ? 'Good. Minimum effective dose for mood and focus.' : 'Better than nothing. Try to push to 30 next time.'}</div>` : ''}
+      ${walkMin > 0 ? `<div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">${walkMin >= 90 ? '5 miles. That\'s not a walk, that\'s a statement.' : walkMin >= 45 ? 'Solid. Cortisol reset + natural dopamine boost locked in.' : walkMin >= 30 ? 'Good. Minimum effective dose for mood and focus.' : 'Better than nothing. Try to push to 30 next time.'}</div>` : ''}
     </div>
   </div>`;
 
@@ -1211,7 +1458,7 @@ function calcExerciseBurn(dk) {
   const data = getData('workouts');
   const d = data[dk] || {};
   let walk=0, am=0, pm=0, cd=0;
-  walk = (d.walk||0) * 4;
+  walk = Math.round((d.walk||0) * 6.5); // ~6.5 cal/min for brisk walk (170lb person)
   am = (d.am||[]).length * 6;
   pm = (d.pm||[]).length * 50;
   cd = (d.cooldown||[]).length * 3;
@@ -1312,10 +1559,18 @@ function renderFoodPicker() {
   });
   document.getElementById('cat-tabs').innerHTML = tabsHtml;
 
-  // Filter foods
+  // Only show grid if user is searching or picked a non-all category
+  const isSearching = query.length > 0;
+  const hasCatFilter = activeCategory !== 'all';
+
+  if (!isSearching && !hasCatFilter) {
+    document.getElementById('food-grid').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0;">Type to search or pick a category above.</div>';
+    return;
+  }
+
   let filtered = FOODS;
-  if (activeCategory !== 'all') filtered = filtered.filter(f => f.cat === activeCategory);
-  if (query) filtered = filtered.filter(f => f.name.toLowerCase().includes(query));
+  if (hasCatFilter) filtered = filtered.filter(f => f.cat === activeCategory);
+  if (isSearching) filtered = filtered.filter(f => f.name.toLowerCase().includes(query));
 
   let html = '';
   filtered.forEach(f => {
@@ -1325,7 +1580,7 @@ function renderFoodPicker() {
     </div>`;
   });
   if (filtered.length === 0) {
-    html = '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No matches. Use custom food below.</div>';
+    html = '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No matches. Use Quick Log or Custom Food below.</div>';
   }
   document.getElementById('food-grid').innerHTML = html;
 }
@@ -1361,6 +1616,223 @@ function addCustomFood() {
   document.getElementById('c-fat').value='';
   document.getElementById('c-carb').value='';
   renderNutrition();
+}
+
+function quickLogFood() {
+  const raw = (document.getElementById('quick-log-input').value || '').trim();
+  if (!raw) return;
+
+  // Aliases: common words → food id
+  const ALIASES = {
+    // PROTEIN
+    'rotisserie chicken': 'rotisserie-chicken', 'rotisserie': 'rotisserie-chicken',
+    'grilled chicken': 'grilled-chicken',
+    'chicken breast': 'chicken-breast', 'chicken breasts': 'chicken-breast', 'chicken': 'chicken-breast',
+    'chicken thigh': 'chicken-thigh', 'chicken thighs': 'chicken-thigh',
+    'chicken wings': 'wings', 'wings': 'wings',
+    'ground beef': 'ground-beef', 'beef': 'ground-beef',
+    'ground turkey': 'ground-turkey',
+    'turkey breast': 'turkey-breast', 'turkey': 'ground-turkey',
+    'deli turkey': 'deli-turkey', 'deli chicken': 'deli-chicken', 'deli ham': 'deli-ham', 'deli meat': 'deli-turkey',
+    'hard boiled eggs': 'hard-boiled-egg', 'hard boiled egg': 'hard-boiled-egg', 'boiled egg': 'hard-boiled-egg', 'boiled eggs': 'hard-boiled-egg',
+    'egg whites': 'egg-whites', 'whites': 'egg-whites',
+    'eggs': 'eggs', 'egg': 'eggs',
+    'steak': 'steak', 'salmon': 'salmon', 'tilapia': 'tilapia', 'shrimp': 'shrimp',
+    'sardines': 'sardines', 'sardine': 'sardines',
+    'tuna can': 'tuna-can', 'canned tuna': 'tuna-can', 'tuna': 'tuna-can',
+    'canned salmon': 'canned-salmon',
+    'beef jerky': 'beef-jerky', 'jerky': 'beef-jerky',
+    'cottage cheese': 'cottage-cheese',
+    'greek yogurt': 'greek-yogurt', 'yogurt': 'greek-yogurt',
+    'fairlife': 'fairlife-shake', 'fairlife shake': 'fairlife-shake',
+    'premier protein': 'premier-protein',
+    'protein shake': 'protein-shake', 'shake': 'protein-shake', 'protein powder': 'protein-shake', 'whey': 'protein-shake',
+    'protein bar': 'protein-bar', 'quest bar': 'quest-bar', 'quest': 'quest-bar',
+    // CARBS
+    'white rice': 'white-rice', 'jasmine rice': 'jasmine-rice',
+    'brown rice': 'brown-rice', 'fried rice': 'fried-rice',
+    'rice': 'white-rice',
+    'quinoa': 'quinoa',
+    'sweet potato': 'sweet-potato', 'sweet potatoes': 'sweet-potato', 'yam': 'yam', 'yams': 'yam',
+    'baked potato': 'white-potato-baked',
+    'potato': 'potato', 'potatoes': 'potato',
+    'pasta': 'pasta', 'noodles': 'pasta',
+    'oats': 'oats', 'oatmeal': 'oats',
+    'bagel': 'bagel', 'english muffin': 'english-muffin', 'pita': 'pita',
+    'bread': 'bread', 'toast': 'bread',
+    'flour tortilla': 'tortilla-flour', 'corn tortilla': 'tortilla-corn', 'tortilla': 'tortilla-flour',
+    'black beans': 'black-beans', 'lentils': 'lentils', 'chickpeas': 'chickpeas', 'beans': 'black-beans',
+    'granola': 'granola', 'cereal': 'cereal', 'crackers': 'crackers', 'rice cakes': 'rice-cakes',
+    'corn': 'corn',
+    'banana': 'banana', 'bananas': 'banana',
+    // FATS
+    'avocado': 'avocado', 'avo': 'avocado',
+    'olive oil': 'olive-oil', 'oil': 'olive-oil',
+    'coconut oil': 'coconut-oil', 'butter': 'butter',
+    'peanut butter': 'peanut-butter', 'pb': 'peanut-butter',
+    'almond butter': 'almond-butter',
+    'almonds': 'almonds', 'cashews': 'cashews', 'walnuts': 'walnuts',
+    'mixed nuts': 'mixed-nuts', 'nuts': 'mixed-nuts', 'brazil nuts': 'brazil-nuts',
+    'sunflower seeds': 'sunflower-seeds', 'seeds': 'sunflower-seeds',
+    'cheddar': 'cheddar', 'mozzarella': 'mozzarella', 'cheese': 'cheese',
+    'cream cheese': 'cream-cheese',
+    'whole milk': 'whole-milk', 'milk': 'whole-milk',
+    'almond milk': 'almond-milk',
+    // VEGGIES
+    'broccoli': 'broccoli', 'spinach': 'spinach', 'kale': 'kale', 'arugula': 'arugula',
+    'romaine': 'romaine', 'salad': 'salad-greens', 'greens': 'salad-greens', 'lettuce': 'romaine',
+    'bell peppers': 'bell-peppers', 'peppers': 'bell-peppers',
+    'mixed veggies': 'mixed-veggies', 'vegetables': 'mixed-veggies', 'veggies': 'mixed-veggies',
+    'zucchini': 'zucchini', 'mushrooms': 'mushrooms', 'asparagus': 'asparagus',
+    'green beans': 'green-beans', 'carrots': 'carrots', 'carrot': 'carrots',
+    'tomato': 'tomato', 'tomatoes': 'tomato',
+    'cucumber': 'cucumber', 'celery': 'celery', 'cabbage': 'cabbage',
+    'onion': 'onion', 'edamame': 'edamame',
+    // SNACKS & DRINKS
+    'apple': 'apple', 'apples': 'apple', 'orange': 'orange',
+    'berries': 'berries', 'strawberries': 'strawberries', 'blueberries': 'blueberries',
+    'mango': 'mango', 'grapes': 'grapes', 'watermelon': 'watermelon', 'pineapple': 'pineapple',
+    'dates': 'dates', 'honey': 'honey', 'salsa': 'salsa',
+    'dark chocolate': 'dark-chocolate', 'chocolate': 'dark-chocolate',
+    'chips': 'chips', 'popcorn': 'popcorn',
+    'orange juice': 'oj', 'oj': 'oj',
+    'gatorade': 'gatorade', 'sports drink': 'gatorade',
+    'green tea': 'green-tea', 'tea': 'green-tea',
+    'black coffee': 'coffee-black', 'coffee': 'coffee-black',
+    // MEALS
+    'chipotle bowl': 'chipotle-bowl', 'chipotle': 'chipotle-bowl',
+    'chipotle burrito': 'chipotle-burrito',
+    'chicken rice bowl': 'chicken-rice-bowl', 'chicken and rice': 'chicken-rice-bowl',
+    'burrito': 'burrito', 'taco': 'taco', 'tacos': 'taco', 'quesadilla': 'quesadilla',
+    'cheeseburger': 'cheeseburger', 'burger': 'burger',
+    'chicken sandwich': 'chicken-sandwich', 'sandwich': 'sandwich',
+    'pizza': 'pizza-slice', 'pizza slice': 'pizza-slice',
+    'sushi': 'sushi-roll', 'sushi roll': 'sushi-roll', 'roll': 'sushi-roll',
+    'ramen': 'ramen', 'stir fry': 'stir-fry',
+    'mcdonalds': 'mcdonalds-quarter-pounder', "mcdonald's": 'mcdonalds-quarter-pounder',
+    'chick fil a': 'chick-fil-a-sandwich', 'chick-fil-a': 'chick-fil-a-sandwich', 'cfa': 'chick-fil-a-sandwich',
+    'subway': 'subway-footlong',
+    'omelette': 'omelette', 'omelet': 'omelette',
+    'acai bowl': 'acai-bowl', 'acai': 'acai-bowl',
+    'smoothie': 'smoothie', 'protein smoothie': 'protein-smoothie',
+    'fries': 'fries', 'french fries': 'fries',
+    'wings': 'wings', 'chicken wings': 'wings',
+    'soup': 'soup', 'chicken noodle soup': 'soup',
+    'fried rice': 'fried-rice',
+  };
+  // Sort aliases longest first so multi-word matches win
+  const sortedAliases = Object.keys(ALIASES).sort((a,b) => b.length - a.length);
+
+  // Word-to-number map
+  const WORD_NUMS = { 'half': 0.5, 'a': 1, 'an': 1, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6 };
+
+  function parseQty(text) {
+    // Numeric prefix: "2 chicken", "1.5 cups rice"
+    const numMatch = text.match(/^(\d+\.?\d*)\s*/);
+    if (numMatch) return { qty: parseFloat(numMatch[1]), rest: text.slice(numMatch[0].length) };
+    // Word prefix
+    for (const [word, val] of Object.entries(WORD_NUMS)) {
+      if (text.startsWith(word + ' ') || text === word) {
+        return { qty: val, rest: text.slice(word.length).trimStart() };
+      }
+    }
+    return { qty: 1, rest: text };
+  }
+
+  function matchFood(text) {
+    // Try aliases longest-first
+    for (const alias of sortedAliases) {
+      if (text.includes(alias)) return ALIASES[alias];
+    }
+    // Fuzzy: find food whose name words appear in text
+    let best = null, bestScore = 0;
+    FOODS.forEach(f => {
+      const fname = f.name.toLowerCase();
+      const fwords = fname.split(/\s+/).filter(w => w.length > 2);
+      let score = fwords.reduce((s, w) => text.includes(w) ? s + 1 : s, 0);
+      if (score > bestScore) { bestScore = score; best = f; }
+    });
+    return (best && bestScore > 0) ? best.id : null;
+  }
+
+  const segments = raw.toLowerCase().split(/\band\b|,|\+|&/i).map(s => s.trim()).filter(Boolean);
+  const logged = [];
+  const dk = dateKey();
+  const data = getData('nutrition');
+  if (!data[dk]) data[dk] = [];
+
+  // Unit conversion helpers
+  function toGrams(amount, unit) {
+    const u = unit.toLowerCase();
+    if (u.startsWith('oz') || u.startsWith('ounce')) return amount * 28.35;
+    if (u === 'lb' || u === 'pound') return amount * 453.6;
+    if (u === 'g' || u.startsWith('gram')) return amount;
+    if (u.startsWith('cup')) return amount * 240; // rough
+    if (u.startsWith('tbsp') || u.startsWith('tablespoon')) return amount * 14.2;
+    if (u.startsWith('tsp') || u.startsWith('teaspoon')) return amount * 4.7;
+    return null;
+  }
+  function servingGrams(servingStr) {
+    const m = servingStr.match(/(\d+\.?\d*)\s*(oz|ounce|g|gram|lb|cup|tbsp|tablespoon|tsp)/i);
+    if (!m) return null;
+    return toGrams(parseFloat(m[1]), m[2]);
+  }
+
+  segments.forEach(seg => {
+    // Detect unit-quantity BEFORE stripping (e.g. "7oz", "200g", "1.5 lb")
+    const unitMatch = seg.match(/^(\d+\.?\d*)\s*(oz|ounce|ounces|lb|pound|g|gram|grams|cups?|tbsp|tablespoons?|tsps?|teaspoons?)\b/i);
+
+    // Strip filler words for food matching
+    const cleaned = seg.replace(/\b(of|with|some|the|my|cups?|oz|ounce|ounces|lb|pound|scoops?|tbsp|tablespoons?|tsps?|teaspoons?|servings?|pieces?|medium|large|small|cooked|raw|grams?|g)\b/g, ' ').replace(/\s+/g, ' ').trim();
+    const { qty: parsedQty, rest } = parseQty(cleaned);
+    const foodId = matchFood(rest || cleaned);
+    if (!foodId) return;
+    const food = FOODS.find(f => f.id === foodId);
+    if (!food) return;
+
+    // Calculate proper qty: if a unit was specified, divide by food's serving size
+    let qty = parsedQty;
+    if (unitMatch) {
+      const inputAmount = parseFloat(unitMatch[1]);
+      const inputUnit = unitMatch[2];
+      const inputG = toGrams(inputAmount, inputUnit);
+      const servG = servingGrams(food.serving);
+      if (inputG && servG) {
+        qty = Math.round((inputG / servG) * 100) / 100; // ratio of servings
+      } else {
+        qty = inputAmount; // fallback: use number as-is
+      }
+    }
+
+    const existing = data[dk].find(f => f.id === food.id && (!f.addons || f.addons.length === 0));
+    const addCal = Math.round(food.cal * qty);
+    const addPro = Math.round(food.pro * qty);
+    const addFat = Math.round(food.fat * qty);
+    const addCarb = Math.round(food.carb * qty);
+    if (existing) {
+      existing.qty = Math.round((existing.qty + qty) * 100) / 100;
+      existing.cal += addCal; existing.pro += addPro;
+      existing.fat += addFat; existing.carb += addCarb;
+    } else {
+      data[dk].push({ id: food.id, name: food.name, qty, serving: food.serving, addons: [], cal: addCal, pro: addPro, fat: addFat, carb: addCarb });
+    }
+    const ozLabel = unitMatch ? `${unitMatch[1]}${unitMatch[2]} ` : (qty !== 1 ? qty + '× ' : '');
+    logged.push(ozLabel + food.name);
+  });
+
+  setData('nutrition', data);
+  document.getElementById('quick-log-input').value = '';
+  renderNutrition();
+
+  const confirm = document.getElementById('quick-log-confirm');
+  if (logged.length > 0) {
+    confirm.style.color = 'var(--green-dim)';
+    confirm.textContent = 'Added: ' + logged.join(', ');
+  } else {
+    confirm.style.color = 'var(--red)';
+    confirm.textContent = 'No match — try searching below or use Custom Food';
+  }
+  setTimeout(() => { if (confirm) confirm.textContent = ''; }, 3000);
 }
 
 // ===== WEIGHT =====
@@ -1476,20 +1948,20 @@ const HABITS = [
   // BUILD — positive points (doing these ADDS to your capacity)
   { id: 'walk',       name: 'Morning Walk',         time: '7 AM',    auto: 'walk',    link: 'workout',
     why: 'Sunlight + movement resets cortisol, boosts dopamine naturally for 6+ hours', impact: 3, type: 'build' },
+  { id: 'cold_shower',name: 'Cold Shower',           time: '7–8 AM',
+    why: '2-3x dopamine increase for 3+ hours. Same boost as nicotine but it heals instead of drains', impact: 3, type: 'build' },
   { id: 'workout_am', name: 'AM Workout',            time: '8 AM',    auto: 'am',      link: 'workout',
     why: 'BDNF release — literally grows new brain cells. Sharpens focus for deep work', impact: 3, type: 'build' },
   { id: 'bible',      name: 'Read Bible',            time: '9 AM',
     why: 'Stillness before the grind. Grounds your identity before the world gets loud', impact: 2, type: 'build' },
-  { id: 'deep_work',  name: 'Deep Work (3 hrs)',     time: '9–12',
-    why: 'This is where money gets made. 3 focused hours > 10 distracted hours', impact: 4, type: 'build' },
   { id: 'no_scroll',  name: 'No Scroll til DW Done', time: 'AM',
     why: 'Every scroll before deep work burns your best attention on someone else\'s content', impact: 2, type: 'build' },
+  { id: 'deep_work',  name: 'Deep Work (3 hrs)',     time: '9–12',
+    why: 'This is where money gets made. 3 focused hours > 10 distracted hours', impact: 4, type: 'build' },
   { id: 'protein',    name: '150g+ Protein',         time: 'All day', auto: 'protein', link: 'nutrition',
     why: 'Muscle recovery + keeps blood sugar stable = less brain fog, fewer cravings', impact: 2, type: 'build' },
   { id: 'workout_pm', name: 'PM Workout',            time: '5 PM',    auto: 'pm',      link: 'workout',
     why: 'Burns stress hormones from the day. Sleep quality doubles on workout days', impact: 3, type: 'build' },
-  { id: 'cold_shower',name: 'Cold Shower',           time: 'Anytime',
-    why: '2-3x dopamine increase for 3+ hours. Same boost as nicotine but it heals instead of drains', impact: 3, type: 'build' },
   { id: 'journal',    name: 'Journal',               time: 'Evening',
     why: 'Gets the loops out of your head. Stops the 2am overthinking spiral', impact: 1, type: 'build' },
 
@@ -1941,6 +2413,264 @@ function renderToday() {
 }
 
 // ===== RENDER ALL =====
+// ===== DISCIPLINE =====
+const DISC_MILESTONES = [1,3,7,14,30,60,90,180,365];
+const DISC_TRIGGERS = ['Stress','Boredom','Late night','No workout','Social media','Loneliness','After drinking','Idle time'];
+const DISC_DEFAULTS = { cart: { startDate: null, relapses: [] }, pmo: { startDate: null, relapses: [] } };
+let activeDisc = 'cart';
+let slipTriggers = [];
+
+function getDiscData() {
+  const d = getData('discipline');
+  if (!d.cart) d.cart = { startDate: null, relapses: [] };
+  if (!d.pmo)  d.pmo  = { startDate: null, relapses: [] };
+  return d;
+}
+function saveDiscData(d) { setData('discipline', d); }
+
+function getDiscStreak(disc) {
+  if (!disc.startDate) return 0;
+  const start = new Date(disc.startDate);
+  const now = new Date();
+  const diff = Math.floor((now - start) / 86400000);
+  return Math.max(0, diff);
+}
+
+function getBestDiscStreak(disc) {
+  if (!disc.relapses || disc.relapses.length === 0) return getDiscStreak(disc);
+  const allDates = [disc.startDate, ...disc.relapses.map(r => r.date)].filter(Boolean).sort();
+  let best = 0;
+  for (let i = 0; i < allDates.length - 1; i++) {
+    const diff = Math.floor((new Date(allDates[i+1]) - new Date(allDates[i])) / 86400000);
+    if (diff > best) best = diff;
+  }
+  // Also check current streak
+  const cur = getDiscStreak(disc);
+  return Math.max(best, cur);
+}
+
+function getAvgDiscStreak(disc) {
+  if (!disc.relapses || disc.relapses.length === 0) return null;
+  const allDates = [disc.startDate, ...disc.relapses.map(r => r.date)].filter(Boolean).sort();
+  if (allDates.length < 2) return null;
+  let total = 0, count = 0;
+  for (let i = 0; i < allDates.length - 1; i++) {
+    const diff = Math.floor((new Date(allDates[i+1]) - new Date(allDates[i])) / 86400000);
+    total += diff; count++;
+  }
+  return count > 0 ? Math.round(total / count) : null;
+}
+
+function getMilestoneProgress(streak) {
+  let prev = 0, next = DISC_MILESTONES[0];
+  for (const m of DISC_MILESTONES) {
+    if (streak >= m) { prev = m; }
+    else { next = m; break; }
+  }
+  if (streak >= DISC_MILESTONES[DISC_MILESTONES.length - 1]) {
+    return { prev, next: null, pct: 100 };
+  }
+  const pct = prev === next ? 100 : Math.round(((streak - prev) / (next - prev)) * 100);
+  return { prev, next, pct };
+}
+
+function switchDisc(type) {
+  activeDisc = type;
+  document.querySelectorAll('.disc-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('disc-tab-' + type).classList.add('active');
+  renderDisc();
+}
+
+function renderDisc() {
+  const data = getDiscData();
+  const disc = data[activeDisc];
+
+  // Init start date if never set
+  if (!disc.startDate) {
+    disc.startDate = new Date().toISOString().split('T')[0];
+    saveDiscData(data);
+  }
+
+  const streak = getDiscStreak(disc);
+  const best = getBestDiscStreak(disc);
+  const avg = getAvgDiscStreak(disc);
+  const totalRelapses = (disc.relapses||[]).length;
+  const { prev, next, pct } = getMilestoneProgress(streak);
+
+  // Streak num color
+  const numEl = document.getElementById('disc-streak-num');
+  numEl.textContent = streak;
+  numEl.className = 'disc-streak-num ' + (streak === 0 ? 'zero' : streak < 7 ? 'low' : streak < 30 ? 'mid' : 'high');
+
+  // Milestone bar
+  document.getElementById('disc-milestone-fill').style.width = pct + '%';
+  document.getElementById('disc-mile-prev').textContent = prev + 'd';
+  document.getElementById('disc-mile-next').textContent = next ? next + 'd' : '∞';
+  document.getElementById('disc-mile-msg').textContent = next ? `Next milestone: ${next} days` : 'All milestones reached';
+
+  // Stats
+  document.getElementById('disc-best').textContent = best;
+  document.getElementById('disc-relapses').textContent = totalRelapses;
+  document.getElementById('disc-avg').textContent = avg !== null ? avg + 'd' : '—';
+
+  // Milestones grid
+  let mHtml = '';
+  DISC_MILESTONES.forEach(m => {
+    const reached = streak >= m;
+    const label = m >= 365 ? '1 yr' : m >= 180 ? '6 mo' : m >= 90 ? '90d' : m >= 60 ? '60d' : m >= 30 ? '30d' : m >= 14 ? '14d' : m >= 7 ? '7d' : m >= 3 ? '3d' : '1d';
+    mHtml += `<div class="milestone-chip ${reached?'reached':''}">
+      <div class="mc-num">${reached?'✓':m}</div>
+      <div class="mc-lbl">${label}</div>
+    </div>`;
+  });
+  document.getElementById('disc-milestones').innerHTML = mHtml;
+
+  // Patterns (show after 3+ relapses = enough data)
+  const patternsCard = document.getElementById('disc-patterns-card');
+  if (totalRelapses >= 3) {
+    patternsCard.style.display = 'block';
+    renderDiscPatterns(disc);
+  } else {
+    patternsCard.style.display = totalRelapses > 0 ? 'block' : 'none';
+    document.getElementById('disc-patterns').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:4px 0;">Log a few more relapses and I\'ll start showing you your patterns.</div>';
+    document.getElementById('disc-patterns-badge').textContent = totalRelapses + '/3 data points';
+  }
+
+  // Log
+  const logCard = document.getElementById('disc-log-card');
+  const relapses = [...(disc.relapses||[])].reverse();
+  if (relapses.length > 0) {
+    logCard.style.display = 'block';
+    let logHtml = '';
+    relapses.slice(0, 8).forEach(r => {
+      const d = new Date(r.date);
+      const dayName = DAY_SHORT[d.getDay()];
+      const tags = (r.triggers||[]).join(', ');
+      logHtml += `<div class="pattern-row">
+        <div class="pattern-icon">↩</div>
+        <div class="pattern-text">
+          <strong>${dayName}, ${MONTH_SHORT[d.getMonth()]} ${d.getDate()}</strong>
+          ${tags ? `<br><span style="color:var(--muted);font-size:11px;">${tags}</span>` : ''}
+          ${r.note ? `<br><span style="color:var(--muted);font-size:11px;">"${r.note}"</span>` : ''}
+        </div>
+      </div>`;
+    });
+    document.getElementById('disc-log').innerHTML = logHtml;
+  } else {
+    logCard.style.display = 'none';
+  }
+}
+
+function renderDiscPatterns(disc) {
+  const relapses = disc.relapses || [];
+  const insights = [];
+
+  // Day-of-week analysis
+  const dayCounts = {};
+  relapses.forEach(r => {
+    const day = new Date(r.date).getDay();
+    dayCounts[day] = (dayCounts[day]||0) + 1;
+  });
+  const hardestDay = Object.entries(dayCounts).sort((a,b) => b[1]-a[1])[0];
+  if (hardestDay && hardestDay[1] >= 2) {
+    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    insights.push({ icon: '📅', text: `<strong>${dayNames[hardestDay[0]]} is your hardest day</strong> — ${hardestDay[1]} relapses. Plan ahead for it.` });
+  }
+
+  // Trigger analysis
+  const trigCounts = {};
+  relapses.forEach(r => (r.triggers||[]).forEach(t => { trigCounts[t] = (trigCounts[t]||0)+1; }));
+  const topTrig = Object.entries(trigCounts).sort((a,b) => b[1]-a[1])[0];
+  if (topTrig) {
+    insights.push({ icon: '⚡', text: `<strong>"${topTrig[0]}"</strong> is your top trigger (${topTrig[1]}x). When you feel it, change the environment immediately.` });
+  }
+
+  // Habit correlation — did working out correlate with clean days?
+  const habitData = getData('habits');
+  let workoutCleanDays = 0, workoutRelapsDays = 0;
+  relapses.forEach(r => {
+    const dk = r.date;
+    const dayHabits = habitData[dk] || {};
+    if (dayHabits['workout'] || dayHabits['am-workout']) workoutRelapsDays++;
+  });
+  // Sample last 30 days for clean + workout days
+  for (let i = 1; i <= 30; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const dk = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const isRelapse = relapses.some(r => r.date === dk);
+    const dayHabits = habitData[dk] || {};
+    if (!isRelapse && (dayHabits['workout'] || dayHabits['am-workout'])) workoutCleanDays++;
+  }
+  if (workoutCleanDays + workoutRelapsDays >= 3) {
+    const workoutWinRate = Math.round((workoutCleanDays / (workoutCleanDays + workoutRelapsDays)) * 100);
+    insights.push({ icon: '💪', text: `<strong>On days you work out, you stay clean ${workoutWinRate}% of the time.</strong> The workout protects you.` });
+  }
+
+  // Streak length insight
+  const avg = getAvgDiscStreak(disc);
+  if (avg !== null && avg > 0) {
+    const danger = Math.max(1, avg - 2);
+    insights.push({ icon: '🔁', text: `Your average streak is <strong>${avg} days</strong>. Day ${danger}–${avg} is typically where you break. Lock in extra on those days.` });
+  }
+
+  // Encouragement if improving
+  if (relapses.length >= 2) {
+    const recent = relapses.slice(-2);
+    const gap0 = relapses.length >= 3 ? Math.floor((new Date(relapses[relapses.length-2].date) - new Date(relapses[relapses.length-3].date)) / 86400000) : 0;
+    const gap1 = Math.floor((new Date(recent[1].date) - new Date(recent[0].date)) / 86400000);
+    if (gap1 > gap0 && gap0 > 0) {
+      insights.push({ icon: '📈', text: `Your last streak was <strong>${gap1} days</strong> vs ${gap0} before that. You're getting stronger.` });
+    }
+  }
+
+  if (insights.length === 0) {
+    document.getElementById('disc-patterns').innerHTML = '<div style="color:var(--muted);font-size:13px;">More data needed — keep logging.</div>';
+    return;
+  }
+
+  document.getElementById('disc-patterns-badge').textContent = insights.length + ' insights';
+  document.getElementById('disc-patterns').innerHTML = insights.map(i =>
+    `<div class="pattern-row"><div class="pattern-icon">${i.icon}</div><div class="pattern-text">${i.text}</div></div>`
+  ).join('');
+}
+
+function openSlipModal() {
+  slipTriggers = [];
+  document.getElementById('slip-note').value = '';
+  const tagsEl = document.getElementById('slip-tags');
+  tagsEl.innerHTML = DISC_TRIGGERS.map(t =>
+    `<div class="disc-tag" id="stag-${t.replace(/\s/g,'_')}" onclick="toggleSlipTrigger('${t}')">${t}</div>`
+  ).join('');
+  document.getElementById('slip-modal').classList.add('open');
+}
+
+function toggleSlipTrigger(t) {
+  const el = document.getElementById('stag-' + t.replace(/\s/g,'_'));
+  if (slipTriggers.includes(t)) {
+    slipTriggers = slipTriggers.filter(x => x !== t);
+    el.classList.remove('on');
+  } else {
+    slipTriggers.push(t);
+    el.classList.add('on');
+  }
+}
+
+function closeSlipModal() {
+  document.getElementById('slip-modal').classList.remove('open');
+}
+
+function logSlip() {
+  const note = document.getElementById('slip-note').value.trim();
+  const today = new Date().toISOString().split('T')[0];
+  const data = getDiscData();
+  const disc = data[activeDisc];
+  disc.relapses.push({ date: today, triggers: [...slipTriggers], note });
+  disc.startDate = today; // reset streak
+  saveDiscData(data);
+  closeSlipModal();
+  renderDisc();
+}
+
 function renderAll() { renderToday(); renderWorkouts(); renderNutrition(); renderWeight(); }
 renderAll();
 </script>
