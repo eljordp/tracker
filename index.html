@@ -1011,11 +1011,19 @@
       <div class="card-body" style="padding:14px 16px;">
         <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Scan Plate</div>
         <input type="file" id="scan-input" accept="image/*" capture="environment" style="display:none;" onchange="handleScanFile(event)">
-        <button id="scan-btn" onclick="document.getElementById('scan-input').click()"
+        <button id="scan-btn" onclick="startScan()"
                 style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
           <span style="font-size:18px;line-height:1;">&#128247;</span> Snap a photo of your food
         </button>
         <div id="scan-status" style="font-size:12px;color:var(--muted);margin-top:8px;min-height:16px;"></div>
+        <div id="scan-keysetup" style="display:none;margin-top:10px;">
+          <div style="display:flex;gap:8px;">
+            <input id="sync-key-input" placeholder="paste sync key" autocomplete="off" autocapitalize="off"
+                   style="flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#f5f5f7;outline:none;font-family:inherit;">
+            <button onclick="saveSyncKey()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer;font-family:inherit;">Save</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;">One time only. Also turns on cloud sync across your devices.</div>
+        </div>
         <div id="scan-results"></div>
       </div>
     </div>
@@ -2080,6 +2088,24 @@ function compressImage(file) {
 
 let scannedItems = [];
 
+function startScan() {
+  if (!SYNC_KEY) {
+    document.getElementById('scan-keysetup').style.display = 'block';
+    const s = document.getElementById('scan-status');
+    s.style.color = ''; s.textContent = 'One-time setup: paste your sync key below, then snap.';
+    document.getElementById('sync-key-input').focus();
+    return;
+  }
+  document.getElementById('scan-input').click();
+}
+
+function saveSyncKey() {
+  const v = (document.getElementById('sync-key-input').value || '').trim();
+  if (!v) return;
+  localStorage.setItem('trackerApiKey', v);
+  location.reload();
+}
+
 async function handleScanFile(ev) {
   const file = ev.target.files && ev.target.files[0];
   ev.target.value = '';
@@ -2088,7 +2114,7 @@ async function handleScanFile(ev) {
   const resEl = document.getElementById('scan-results');
   const btn = document.getElementById('scan-btn');
   resEl.innerHTML = '';
-  if (!SYNC_KEY) { statusEl.style.color = '#c0392b'; statusEl.textContent = 'Add your sync key in Settings to use the scanner.'; return; }
+  if (!SYNC_KEY) { document.getElementById('scan-keysetup').style.display = 'block'; statusEl.style.color = ''; statusEl.textContent = 'Paste your sync key below first.'; return; }
   statusEl.style.color = ''; statusEl.textContent = 'Reading your plate…';
   btn.disabled = true;
   try {
