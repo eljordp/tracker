@@ -14,6 +14,7 @@
     --accent: #000;
     --green: #34c759;
     --green-dim: #248a3d;
+    --blue: #0a84ff;
     --red: #ff3b30;
     --yellow: #ff9500;
     --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
@@ -267,6 +268,20 @@
     cursor: pointer; margin-bottom: 14px; transition: all 0.2s;
   }
   .disc-slip-btn:active { background: #ffe5e5; }
+  .disc-urge-btn {
+    width: 100%; padding: 16px; background: #111; border: 1.5px solid #111;
+    border-radius: 12px; color: #fff; font-size: 14px; font-weight: 800;
+    cursor: pointer; margin-bottom: 10px; transition: all 0.2s;
+  }
+  .disc-urge-btn:active { transform: scale(0.99); }
+  .urge-steps {
+    margin: 16px 0 18px;
+    padding-left: 20px;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .urge-steps li { margin-bottom: 8px; }
   .disc-stats-row { display: flex; gap: 8px; margin-bottom: 14px; }
   .disc-stat { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
   .disc-stat .dsn { font-size: 24px; font-weight: 800; }
@@ -318,7 +333,255 @@
   .page.active { display: block; }
 
   /* TODAY PAGE */
-  .today-ring-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
+  .start-card {
+    background: #111;
+    border: 1px solid #111;
+    color: #fff;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.14);
+  }
+  .start-kicker {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.58);
+    margin-bottom: 8px;
+  }
+  .start-title {
+    font-size: 23px;
+    line-height: 1.08;
+    font-weight: 850;
+    letter-spacing: -0.4px;
+    margin-bottom: 8px;
+  }
+  .start-sub {
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(255,255,255,0.72);
+    margin-bottom: 14px;
+  }
+  .start-reward {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .start-reward span {
+    background: rgba(255,255,255,0.09);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    padding: 7px 10px;
+    color: rgba(255,255,255,0.84);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .start-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+  .start-btn {
+    flex: 1;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    padding: 11px 12px;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+  }
+  .start-btn.primary {
+    background: var(--green);
+    border-color: var(--green);
+    color: #071108;
+  }
+  .quick-row {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1px;
+  }
+  .quick-row::-webkit-scrollbar { display: none; }
+  .quick-pill {
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.78);
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .quick-pill.done {
+    background: rgba(52,199,89,0.18);
+    border-color: rgba(52,199,89,0.55);
+    color: #9df0b2;
+  }
+
+  .lock-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+  .lock-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .lock-title {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.1px;
+  }
+  .lock-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.45;
+    margin-top: 3px;
+  }
+  .lock-progress {
+    background: #111;
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 9px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .lock-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .lock-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #f8f8fa;
+    padding: 10px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .lock-item.done {
+    background: rgba(52,199,89,0.12);
+    border-color: rgba(52,199,89,0.45);
+  }
+  .lock-name {
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 3px;
+  }
+  .lock-note {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+
+  .performance-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+  .performance-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .performance-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .performance-rank {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.4px;
+  }
+  .performance-grade {
+    min-width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: #111;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 900;
+  }
+  .performance-grade.good { background: var(--green); color: #061407; }
+  .performance-grade.mid { background: var(--yellow); color: #1a1200; }
+  .performance-grade.low { background: var(--red); color: #fff; }
+  .xp-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .xp-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: #ececef;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .xp-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: #111;
+    transition: width 0.4s ease;
+  }
+  .perf-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .perf-stat {
+    background: #f8f8fa;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .perf-stat-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 7px;
+  }
+  .perf-stat-boost {
+    color: var(--green-dim);
+    white-space: nowrap;
+  }
+  .perf-stat-bar {
+    height: 5px;
+    border-radius: 999px;
+    background: #e5e5e7;
+    overflow: hidden;
+  }
+  .perf-stat-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--green);
+  }
+
+  .today-ring-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
   .today-ring { position: relative; width: 160px; height: 160px; }
   .today-ring svg { transform: rotate(-90deg); }
   .today-ring-bg { fill: none; stroke: #e5e5e7; stroke-width: 10; }
@@ -438,10 +701,10 @@
 
   .daily-word-wrap {
     background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow);
+    padding: 16px; margin-bottom: 20px; box-shadow: var(--shadow);
   }
   .daily-quote {
-    font-size: 16px; font-weight: 600; line-height: 1.5; font-style: italic;
+    font-size: 15px; font-weight: 600; line-height: 1.45; font-style: italic;
     color: var(--text); margin-bottom: 8px;
   }
   .daily-quote-author {
@@ -455,7 +718,7 @@
     color: var(--green); margin-bottom: 8px;
   }
   .daily-verse {
-    font-size: 14px; line-height: 1.6; color: var(--text);
+    font-size: 13px; line-height: 1.55; color: var(--text);
   }
   .daily-verse-ref {
     font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 6px;
@@ -470,7 +733,7 @@
   .daily-manifest-input {
     width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
     color: var(--text); font-size: 14px; padding: 12px; outline: none; resize: none;
-    font-family: inherit; line-height: 1.5; min-height: 60px;
+    font-family: inherit; line-height: 1.5; min-height: 50px;
   }
   .daily-manifest-input:focus { border-color: #ccc; }
   .daily-manifest-input::placeholder { color: var(--muted); }
@@ -493,6 +756,28 @@
     text-align: center; margin-top: 12px; text-decoration: none;
   }
   .work-crm-link:active { background: #e0e0e0; }
+
+  .win-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(78px + env(safe-area-inset-bottom));
+    transform: translate(-50%, 16px);
+    opacity: 0;
+    z-index: 180;
+    background: #111;
+    color: #fff;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 750;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .win-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 </style>
 </head>
 <body>
@@ -505,7 +790,9 @@
       <div class="line"></div>
       <div class="sub" id="today-date-label"></div>
     </div>
-    <div class="daily-word-wrap" id="daily-word"></div>
+    <div id="start-here"></div>
+    <div id="lock-setup"></div>
+    <div id="performance-card"></div>
     <div class="today-ring-wrap">
       <div class="today-ring">
         <svg width="160" height="160" viewBox="0 0 160 160">
@@ -522,6 +809,7 @@
         <span class="streak-num" id="today-streak-num">0</span> day streak
       </div>
     </div>
+    <div class="daily-word-wrap" id="daily-word"></div>
     <div class="today-score-wrap" id="today-score"></div>
     <div class="today-score-wrap" id="dopamine-tracker"></div>
     <div class="clean-days-wrap" id="clean-days"></div>
@@ -710,9 +998,9 @@
 <div class="page" id="page-discipline">
   <div class="container">
     <div class="page-header">
-      <h1>Discipline</h1>
+      <h1>Recovery</h1>
       <div class="line"></div>
-      <div class="sub">The hardest war is the one inside your head.</div>
+      <div class="sub">Streaks, urges, triggers, reset.</div>
     </div>
 
     <!-- Tracker tabs -->
@@ -736,7 +1024,8 @@
       <div class="disc-stat"><div class="dsn" id="disc-avg">—</div><div class="dsl">Avg Streak</div></div>
     </div>
 
-    <!-- Slip button -->
+    <!-- Urge / slip buttons -->
+    <button class="disc-urge-btn" onclick="openUrgeModal()">Urge Mode — 10 min reset</button>
     <button class="disc-slip-btn" onclick="openSlipModal()">I slipped — reset & keep going</button>
 
     <!-- Milestones -->
@@ -757,6 +1046,24 @@
     <div class="card" id="disc-log-card" style="display:none;">
       <div class="card-header"><h2>History</h2></div>
       <div class="card-body"><div id="disc-log"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- URGE MODAL -->
+<div class="modal-overlay" id="urge-modal">
+  <div class="modal">
+    <h3>Urge Mode</h3>
+    <div class="modal-sub">Do the sequence. Do not negotiate with the urge while it is loud.</div>
+    <ol class="urge-steps">
+      <li>Put the phone across the room, face down.</li>
+      <li>Stand up and walk for 10 minutes.</li>
+      <li>Drink water or take a cold shower.</li>
+      <li>Come back and check one clean action.</li>
+    </ol>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeUrgeModal()">Close</button>
+      <button class="modal-add" onclick="completeUrgeMode()">I did the reset</button>
     </div>
   </div>
 </div>
@@ -804,6 +1111,8 @@
   </div>
 </div>
 
+<div class="win-toast" id="win-toast" aria-live="polite"></div>
+
 <!-- NAV -->
 <nav class="nav">
   <button class="active" onclick="showPage('today', this)">
@@ -824,7 +1133,7 @@
   </button>
   <button onclick="showPage('discipline', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Discipline
+    Quit
   </button>
 </nav>
 
@@ -1145,6 +1454,8 @@ const FOODS = [
   { id:'wings', name:'Chicken Wings', serving:'6 wings', cat:'meals', cal:430, pro:36, fat:29, carb:3 },
   { id:'fries', name:'French Fries', serving:'medium', cat:'meals', cal:365, pro:4, fat:17, carb:48 },
   { id:'soup', name:'Soup (chicken noodle)', serving:'1 cup', cat:'meals', cal:120, pro:8, fat:3, carb:15 },
+  { id:'pho-large', name:'Pho Large Combo', serving:'1 large bowl', cat:'meals', cal:750, pro:45, fat:18, carb:75 },
+  { id:'pho-small', name:'Pho Small', serving:'1 small bowl', cat:'meals', cal:450, pro:28, fat:10, carb:50 },
 ];
 
 const CATEGORIES = ['all','protein','carbs','fats','veggies','snacks','meals'];
@@ -1394,9 +1705,8 @@ function renderWorkouts() {
         <button class="btn-sm" onclick="setWalk(30)" style="${walkMin===30?'background:#000;color:#fff;border-color:#000;':''}">30m</button>
         <button class="btn-sm" onclick="setWalk(45)" style="${walkMin===45?'background:#000;color:#fff;border-color:#000;':''}">45m</button>
         <button class="btn-sm" onclick="setWalk(60)" style="${walkMin===60?'background:#000;color:#fff;border-color:#000;':''}">60m</button>
-        <button class="btn-sm" onclick="setWalk(90)" style="${walkMin===90?'background:#000;color:#fff;border-color:#000;':''}">90m</button>
       </div>
-      ${walkMin > 0 ? `<div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">${walkMin >= 90 ? '5 miles. That\'s not a walk, that\'s a statement.' : walkMin >= 45 ? 'Solid. Cortisol reset + natural dopamine boost locked in.' : walkMin >= 30 ? 'Good. Minimum effective dose for mood and focus.' : 'Better than nothing. Try to push to 30 next time.'}</div>` : ''}
+      ${walkMin > 0 ? `<div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">${walkMin >= 45 ? 'Solid. Cortisol reset + natural dopamine boost locked in.' : walkMin >= 30 ? 'Good. Minimum effective dose for mood and focus.' : 'Better than nothing. Try to push to 30 next time.'}</div>` : ''}
     </div>
   </div>`;
 
@@ -1458,7 +1768,7 @@ function calcExerciseBurn(dk) {
   const data = getData('workouts');
   const d = data[dk] || {};
   let walk=0, am=0, pm=0, cd=0;
-  walk = Math.round((d.walk||0) * 6.5); // ~6.5 cal/min for brisk walk (170lb person)
+  walk = (d.walk||0) * 4;
   am = (d.am||[]).length * 6;
   pm = (d.pm||[]).length * 50;
   cd = (d.cooldown||[]).length * 3;
@@ -1709,6 +2019,7 @@ function quickLogFood() {
     'pizza': 'pizza-slice', 'pizza slice': 'pizza-slice',
     'sushi': 'sushi-roll', 'sushi roll': 'sushi-roll', 'roll': 'sushi-roll',
     'ramen': 'ramen', 'stir fry': 'stir-fry',
+    'pho large': 'pho-large', 'large pho': 'pho-large', 'combination pho': 'pho-large', 'large combination pho': 'pho-large', 'pho': 'pho-large', 'pho small': 'pho-small',
     'mcdonalds': 'mcdonalds-quarter-pounder', "mcdonald's": 'mcdonalds-quarter-pounder',
     'chick fil a': 'chick-fil-a-sandwich', 'chick-fil-a': 'chick-fil-a-sandwich', 'cfa': 'chick-fil-a-sandwich',
     'subway': 'subway-footlong',
@@ -1948,31 +2259,39 @@ const HABITS = [
   // BUILD — positive points (doing these ADDS to your capacity)
   { id: 'walk',       name: 'Morning Walk',         time: '7 AM',    auto: 'walk',    link: 'workout',
     why: 'Sunlight + movement resets cortisol, boosts dopamine naturally for 6+ hours', impact: 3, type: 'build' },
-  { id: 'cold_shower',name: 'Cold Shower',           time: '7–8 AM',
-    why: '2-3x dopamine increase for 3+ hours. Same boost as nicotine but it heals instead of drains', impact: 3, type: 'build' },
   { id: 'workout_am', name: 'AM Workout',            time: '8 AM',    auto: 'am',      link: 'workout',
     why: 'BDNF release — literally grows new brain cells. Sharpens focus for deep work', impact: 3, type: 'build' },
   { id: 'bible',      name: 'Read Bible',            time: '9 AM',
     why: 'Stillness before the grind. Grounds your identity before the world gets loud', impact: 2, type: 'build' },
-  { id: 'no_scroll',  name: 'No Scroll til DW Done', time: 'AM',
-    why: 'Every scroll before deep work burns your best attention on someone else\'s content', impact: 2, type: 'build' },
   { id: 'deep_work',  name: 'Deep Work (3 hrs)',     time: '9–12',
     why: 'This is where money gets made. 3 focused hours > 10 distracted hours', impact: 4, type: 'build' },
+  { id: 'no_scroll',  name: 'No Scroll til DW Done', time: 'AM',
+    why: 'Every scroll before deep work burns your best attention on someone else\'s content', impact: 2, type: 'build' },
   { id: 'protein',    name: '150g+ Protein',         time: 'All day', auto: 'protein', link: 'nutrition',
     why: 'Muscle recovery + keeps blood sugar stable = less brain fog, fewer cravings', impact: 2, type: 'build' },
   { id: 'workout_pm', name: 'PM Workout',            time: '5 PM',    auto: 'pm',      link: 'workout',
     why: 'Burns stress hormones from the day. Sleep quality doubles on workout days', impact: 3, type: 'build' },
+  { id: 'cold_shower',name: 'Cold Shower',           time: 'Anytime',
+    why: '2-3x dopamine increase for 3+ hours. Same boost as nicotine but it heals instead of drains', impact: 3, type: 'build' },
   { id: 'journal',    name: 'Journal',               time: 'Evening',
     why: 'Gets the loops out of your head. Stops the 2am overthinking spiral', impact: 1, type: 'build' },
 
   // DISCIPLINE — avoiding these PREVENTS the drain
   { id: 'no_cart',    name: 'No Cart',               time: 'All day',
-    why: 'THC tanks your REM sleep, kills motivation hormone (dopamine baseline drops 20%), makes you OK with doing nothing', impact: -4, type: 'discipline' },
+    why: 'Protect REM sleep, ambition, and clean boredom. Tonight gets easier when today stays clean', impact: -4, type: 'discipline' },
   { id: 'no_pmo',     name: 'No PMO',                time: 'All day',
-    why: 'Biggest dopamine spike your brain gets. After = crashed baseline for 24-48 hrs. That\'s why nothing feels worth doing the next day', impact: -5, type: 'discipline' },
+    why: 'Skip the cheap spike. Keep drive, confidence, and normal rewards online for tomorrow', impact: -5, type: 'discipline' },
   { id: 'sleep_10',   name: 'Phone Off by 10',       time: '10 PM',
-    why: 'Blue light + stimulation at night delays melatonin 90 min. You sleep lighter, wake groggier, need more cart to feel normal', impact: -3, type: 'discipline' },
+    why: 'Close the stimulation loop early so tomorrow starts with real energy instead of debt', impact: -3, type: 'discipline' },
 ];
+
+const LOCK_ITEMS = [
+  { id: 'grayscale', name: 'Grayscale on', note: 'Make feeds boring before urges hit' },
+  { id: 'apps_blocked', name: 'Apps blocked', note: 'Delete or Screen Time the trap apps' },
+  { id: 'phone_away', name: 'Phone away', note: 'Across the room for deep work or sleep' },
+  { id: 'book_ready', name: 'Book placed', note: 'Put the better default where the phone sits' },
+];
+const REMINDER_TIMES = ['09:00','14:00','21:30'];
 
 let calViewMonth = new Date().getMonth();
 let calViewYear = new Date().getFullYear();
@@ -2015,6 +2334,359 @@ function getHabits(dk) {
   return all;
 }
 
+function getLockSetup(dk) {
+  return getData('lockSetup')[dk] || [];
+}
+
+function toggleLockItem(lockId) {
+  const dk = dateKey(new Date());
+  const data = getData('lockSetup');
+  if (!data[dk]) data[dk] = [];
+  const i = data[dk].indexOf(lockId);
+  const added = i === -1;
+  if (added) data[dk].push(lockId);
+  else data[dk].splice(i, 1);
+  setData('lockSetup', data);
+  renderToday();
+  if (added) showWinToast('Restriction locked');
+}
+
+function renderLockSetup(dk) {
+  const done = getLockSetup(dk);
+  const items = LOCK_ITEMS.map(item => {
+    const isDone = done.includes(item.id);
+    return `<button class="lock-item ${isDone ? 'done' : ''}" onclick="toggleLockItem('${item.id}')">
+      <div class="lock-name">${isDone ? '✓ ' : ''}${item.name}</div>
+      <div class="lock-note">${item.note}</div>
+    </button>`;
+  }).join('');
+
+  document.getElementById('lock-setup').innerHTML = `
+    <div class="lock-card">
+      <div class="lock-head">
+        <div>
+          <div class="lock-title">Lock Setup</div>
+          <div class="lock-sub">Physical restriction beats willpower. Set the room before the urge gets a vote.</div>
+        </div>
+        <div class="lock-progress">${done.length}/${LOCK_ITEMS.length}</div>
+      </div>
+      <div class="lock-grid">${items}</div>
+    </div>`;
+}
+
+function dayXP(dk) {
+  const checked = getHabits(dk);
+  const lockDone = getLockSetup(dk).length;
+  const urgeCount = getData('urgeResets')[dk] || 0;
+  const habitXP = checked.reduce((sum, id) => {
+    const habit = HABITS.find(h => h.id === id);
+    return sum + (habit ? Math.abs(habit.impact) * 10 : 0);
+  }, 0);
+  return habitXP + lockDone * 15 + urgeCount * 25;
+}
+
+function avg01(values) {
+  if (!values.length) return 0;
+  return Math.round((values.reduce((sum, val) => sum + val, 0) / values.length) * 100);
+}
+
+function getDayStats(dk) {
+  const checked = getHabits(dk);
+  const priorities = (getData('priorities')[dk] || '').trim();
+  const lockRatio = LOCK_ITEMS.length ? getLockSetup(dk).length / LOCK_ITEMS.length : 0;
+  const urgeCount = getData('urgeResets')[dk] || 0;
+
+  return {
+    focus: avg01([
+      checked.includes('deep_work') ? 1 : 0,
+      checked.includes('no_scroll') ? 1 : 0,
+      priorities ? 1 : 0,
+    ]),
+    discipline: avg01([
+      checked.includes('no_pmo') ? 1 : 0,
+      checked.includes('no_cart') ? 1 : 0,
+      checked.includes('sleep_10') ? 1 : 0,
+      lockRatio,
+    ]),
+    body: avg01([
+      checked.includes('walk') ? 1 : 0,
+      checked.includes('workout_am') ? 1 : 0,
+      checked.includes('workout_pm') ? 1 : 0,
+      checked.includes('protein') ? 1 : 0,
+    ]),
+    recovery: avg01([
+      checked.includes('sleep_10') ? 1 : 0,
+      checked.includes('journal') ? 1 : 0,
+      checked.includes('cold_shower') ? 1 : 0,
+      urgeCount > 0 ? 1 : 0,
+    ]),
+  };
+}
+
+function gradeForScore(score) {
+  if (score >= 90) return 'S';
+  if (score >= 80) return 'A';
+  if (score >= 70) return 'B';
+  if (score >= 60) return 'C';
+  if (score >= 40) return 'D';
+  return 'F';
+}
+
+function rankForLevel(level) {
+  if (level >= 20) return 'Machine';
+  if (level >= 12) return 'Elite Operator';
+  if (level >= 8) return 'Locked In';
+  if (level >= 5) return 'Builder';
+  if (level >= 3) return 'Operator';
+  return 'Rookie';
+}
+
+function getPerformanceProfile() {
+  const today = new Date();
+  let totalXP = 0;
+  const totals = { focus: 0, discipline: 0, body: 0, recovery: 0 };
+
+  for (let i = 0; i < 90; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dk = dateKey(d);
+    totalXP += dayXP(dk);
+  }
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const stats = getDayStats(dateKey(d));
+    Object.keys(totals).forEach(key => { totals[key] += stats[key]; });
+  }
+
+  const stats = Object.fromEntries(Object.entries(totals).map(([key, val]) => [key, Math.round(val / 7)]));
+  const avgScore = Math.round(Object.values(stats).reduce((sum, val) => sum + val, 0) / 4);
+  const level = Math.floor(totalXP / 500) + 1;
+  const currentXP = totalXP % 500;
+
+  return {
+    totalXP,
+    level,
+    currentXP,
+    nextXP: 500,
+    rank: rankForLevel(level),
+    grade: gradeForScore(avgScore),
+    avgScore,
+    stats,
+  };
+}
+
+function renderPerformanceCard() {
+  const profile = getPerformanceProfile();
+  const gradeClass = ['S','A'].includes(profile.grade) ? 'good' : ['B','C'].includes(profile.grade) ? 'mid' : 'low';
+  const statLabels = {
+    focus: 'Focus',
+    discipline: 'Discipline',
+    body: 'Body',
+    recovery: 'Recovery',
+  };
+  const statHtml = Object.entries(profile.stats).map(([key, val]) => `
+    <div class="perf-stat">
+      <div class="perf-stat-top">
+        <span>${statLabels[key]}</span>
+        <span class="perf-stat-boost">+${val > 0 ? Math.ceil(val / 10) : 0}</span>
+      </div>
+      <div class="perf-stat-bar"><div class="perf-stat-fill" style="width:${val}%;"></div></div>
+    </div>`).join('');
+
+  document.getElementById('performance-card').innerHTML = `
+    <div class="performance-card">
+      <div class="performance-head">
+        <div>
+          <div class="performance-title">Performance System</div>
+          <div class="performance-rank">Lv ${profile.level} ${profile.rank}</div>
+        </div>
+        <div class="performance-grade ${gradeClass}">${profile.grade}</div>
+      </div>
+      <div class="xp-line">
+        <span>${profile.currentXP} / ${profile.nextXP} XP to next level</span>
+        <span>${profile.totalXP} total XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" style="width:${Math.round((profile.currentXP / profile.nextXP) * 100)}%;"></div></div>
+      <div class="perf-grid">${statHtml}</div>
+    </div>`;
+}
+
+let winToastTimer = null;
+function showWinToast(text) {
+  const toast = document.getElementById('win-toast');
+  if (!toast) return;
+  toast.textContent = text;
+  toast.classList.add('show');
+  clearTimeout(winToastTimer);
+  winToastTimer = setTimeout(() => toast.classList.remove('show'), 1400);
+}
+
+function scrollToHabits() {
+  const list = document.getElementById('habit-list');
+  if (list) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function getStartMove(checked) {
+  const hour = new Date().getHours();
+  let priority;
+  if (hour < 10) {
+    priority = ['no_pmo','no_cart','walk','workout_am','bible','no_scroll','deep_work'];
+  } else if (hour < 14) {
+    priority = ['no_pmo','no_cart','deep_work','no_scroll','protein','walk'];
+  } else if (hour < 20) {
+    priority = ['no_pmo','no_cart','protein','workout_pm','cold_shower','journal'];
+  } else {
+    priority = ['no_pmo','no_cart','sleep_10','journal','cold_shower'];
+  }
+
+  return priority.map(id => HABITS.find(h => h.id === id)).find(h => h && !checked.includes(h.id))
+    || HABITS.find(h => !checked.includes(h.id));
+}
+
+function getReminderPrefs() {
+  const saved = getData('reminderPrefs');
+  return {
+    enabled: !!saved.enabled,
+    times: Array.isArray(saved.times) && saved.times.length ? saved.times : REMINDER_TIMES,
+  };
+}
+
+function saveReminderPrefs(prefs) {
+  localStorage.setItem('reminderPrefs', JSON.stringify(prefs));
+}
+
+function formatReminderTime(t) {
+  const [h, m] = t.split(':').map(Number);
+  const suffix = h >= 12 ? 'p' : 'a';
+  const hour = ((h + 11) % 12) + 1;
+  return `${hour}${m ? ':' + String(m).padStart(2, '0') : ''}${suffix}`;
+}
+
+let reminderTimers = [];
+function clearReminderTimers() {
+  reminderTimers.forEach(id => clearTimeout(id));
+  reminderTimers = [];
+}
+
+function scheduleReminders() {
+  clearReminderTimers();
+  const prefs = getReminderPrefs();
+  if (!prefs.enabled || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+
+  prefs.times.forEach(time => {
+    const [hour, minute] = time.split(':').map(Number);
+    const now = new Date();
+    const next = new Date();
+    next.setHours(hour, minute || 0, 0, 0);
+    if (next <= now) next.setDate(next.getDate() + 1);
+    const delay = next - now;
+    const timer = setTimeout(() => {
+      sendReminder();
+      scheduleReminders();
+    }, delay);
+    reminderTimers.push(timer);
+  });
+}
+
+function sendReminder() {
+  const prefs = getReminderPrefs();
+  if (!prefs.enabled || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  const checked = getHabits(dateKey(new Date()));
+  const next = getStartMove(checked);
+  const title = next ? `Next move: ${next.name}` : 'Full card. Protect it.';
+  const body = next ? 'Open the tracker and lock one more rep.' : 'Keep the night clean and let the streak work.';
+  new Notification(title, { body, tag: 'tracker-next-move' });
+}
+
+async function toggleReminders() {
+  if (typeof Notification === 'undefined') {
+    showWinToast('Browser reminders unavailable');
+    return;
+  }
+  const prefs = getReminderPrefs();
+  if (prefs.enabled) {
+    prefs.enabled = false;
+    saveReminderPrefs(prefs);
+    clearReminderTimers();
+    renderToday();
+    showWinToast('Reminders off');
+    return;
+  }
+  const permission = Notification.permission === 'granted'
+    ? 'granted'
+    : await Notification.requestPermission();
+  if (permission !== 'granted') {
+    showWinToast('Notifications blocked');
+    return;
+  }
+  prefs.enabled = true;
+  saveReminderPrefs(prefs);
+  scheduleReminders();
+  renderToday();
+  showWinToast('Reminders on');
+}
+
+function renderStartCard(checked, pct) {
+  const next = getStartMove(checked);
+  const remaining = Math.max(0, HABITS.length - checked.length);
+  const lockDone = getLockSetup(dateKey(new Date())).length;
+  const xp = checked.reduce((sum, id) => {
+    const habit = HABITS.find(h => h.id === id);
+    return sum + (habit ? Math.abs(habit.impact) * 10 : 0);
+  }, 0) + lockDone * 15;
+  const streak = getHabitStreak();
+  const reminderPrefs = getReminderPrefs();
+  const remindersOn = reminderPrefs.enabled && typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  const reminderLabel = remindersOn
+    ? 'Reminders on'
+    : 'Enable reminders';
+  const reminderSub = reminderPrefs.times.map(formatReminderTime).join(' / ');
+  const quickIds = ['no_pmo','no_cart','bible','journal','sleep_10'];
+  const quickHtml = quickIds.map(id => {
+    const h = HABITS.find(item => item.id === id);
+    if (!h) return '';
+    const done = checked.includes(id);
+    return `<button class="quick-pill ${done ? 'done' : ''}" onclick="toggleHabit('${id}')">${done ? '✓ ' : ''}${h.name}</button>`;
+  }).join('');
+
+  let title, sub, primaryLabel, primaryAction;
+  if (!next) {
+    title = 'Full card. Protect it.';
+    sub = 'Everything for today is checked. Keep the night clean and let the streak do its work.';
+    primaryLabel = 'Review today';
+    primaryAction = 'scrollToHabits()';
+  } else if (checked.length === 0) {
+    title = 'Start with one clean win.';
+    sub = 'Tap one promise, then take one physical action. No negotiation, no reset fantasy.';
+    primaryLabel = next.link ? `Open ${next.name}` : `Claim ${next.name}`;
+    primaryAction = `toggleHabit('${next.id}')`;
+  } else {
+    title = `Next: ${next.name}`;
+    sub = `${checked.length}/${HABITS.length} locked. ${remaining} left, but the day already has motion.`;
+    primaryLabel = next.link ? `Open ${next.name}` : `Claim ${next.name}`;
+    primaryAction = `toggleHabit('${next.id}')`;
+  }
+
+  document.getElementById('start-here').innerHTML = `
+    <div class="start-card">
+      <div class="start-kicker">${pct === 100 ? 'Locked' : 'Start here'}</div>
+      <div class="start-title">${title}</div>
+      <div class="start-sub">${sub}</div>
+      <div class="start-reward">
+        <span>${xp} XP today</span>
+        <span>${streak} day streak</span>
+        <span>${reminderSub}</span>
+      </div>
+      <div class="start-actions">
+        <button class="start-btn primary" onclick="${primaryAction}">${primaryLabel}</button>
+        <button class="start-btn" onclick="toggleReminders()">${reminderLabel}</button>
+      </div>
+      <div class="quick-row">${quickHtml}</div>
+    </div>`;
+}
+
 function toggleHabit(habitId) {
   const habit = HABITS.find(h => h.id === habitId);
   // If it's an auto habit with a link, navigate to that tab
@@ -2028,10 +2700,12 @@ function toggleHabit(habitId) {
   const data = getData('habits');
   if (!data[dk]) data[dk] = [];
   const i = data[dk].indexOf(habitId);
-  if (i === -1) data[dk].push(habitId);
+  const added = i === -1;
+  if (added) data[dk].push(habitId);
   else data[dk].splice(i, 1);
   setData('habits', data);
   renderToday();
+  if (added && habit) showWinToast(`${habit.name} locked`);
 }
 
 function getCleanStreak(habitId) {
@@ -2191,6 +2865,9 @@ function renderToday() {
   const dk = dateKey(today);
   const checked = getHabits(dk);
   const pct = HABITS.length > 0 ? Math.round((checked.length / HABITS.length) * 100) : 0;
+  renderStartCard(checked, pct);
+  renderLockSetup(dk);
+  renderPerformanceCard();
 
   // Daily Word — quote + verse + manifestation journal
   const quote = DAILY_QUOTES[getDailyIndex(DAILY_QUOTES)];
@@ -2206,7 +2883,7 @@ function renderToday() {
     </div>
     <div class="daily-manifest-wrap">
       <div class="daily-manifest-label">Speak it into existence</div>
-      <textarea class="daily-manifest-input" id="manifest-input" placeholder="What are you building? What are you becoming? Write it like it's already done..." oninput="saveManifest()">${savedManifest}</textarea>
+      <textarea class="daily-manifest-input" id="manifest-input" placeholder="I already move like the man who..." oninput="saveManifest()">${savedManifest}</textarea>
     </div>`;
   document.getElementById('daily-word').innerHTML = wordHtml;
 
@@ -2242,12 +2919,12 @@ function renderToday() {
 
   // Score messages based on level
   const SCORE_MSGS = [
-    { min: 0,  msg: "You're running on fumes. Your brain is borrowing from tomorrow to feel OK today. One walk changes the trajectory." },
-    { min: 20, msg: "Barely online. The cart and the screen are eating your potential. Pick one hard thing and do it." },
-    { min: 40, msg: "Getting somewhere. Your dopamine is starting to normalize. Keep pushing — the compound effect kicks in around day 5." },
-    { min: 60, msg: "This is where most people quit. You're past the worst withdrawal. Tomorrow will be easier than today." },
-    { min: 80, msg: "You're operating at a level most people never reach. This is what 50%+ feels like. Imagine 90%." },
-    { min: 95, msg: "Machine mode. You're building the version of yourself that closes $10K months without thinking about it." },
+    { min: 0,  msg: "First move wins the day. Claim one clean promise or take the walk, then let the meter start telling a different story." },
+    { min: 20, msg: "You are online. Do not hunt for a perfect plan. Pick the next visible action and stack it." },
+    { min: 40, msg: "Momentum is back in the room. Keep the phone quiet and protect the next hour." },
+    { min: 60, msg: "Solid operating level. This is the zone where small slips try to bargain. Stay boring and keep stacking." },
+    { min: 80, msg: "High-control day. Capture the money move, eat clean, and close the loop tonight." },
+    { min: 95, msg: "Machine mode. This is the version that makes clean execution feel normal." },
   ];
   const scoreMsg = [...SCORE_MSGS].reverse().find(m => scorePct >= m.min).msg;
 
@@ -2294,11 +2971,11 @@ function renderToday() {
   const dopaLabel = dopaScore >= 80 ? 'Thriving' : dopaScore >= 60 ? 'Recovering' : dopaScore >= 40 ? 'Depleted' : dopaScore >= 20 ? 'Fried' : 'Crashed';
 
   const DOPA_MSGS = [
-    { min: 0,  msg: "Your dopamine receptors are destroyed. Nothing feels good because your brain can't respond to normal rewards anymore. Every day clean, they heal a little. Day 1 is the hardest." },
-    { min: 20, msg: "Still fried but the receptors are starting to wake up. You'll feel flat and bored — that's withdrawal, not reality. Push through. Day 3-5 is where it breaks." },
-    { min: 40, msg: "Depleted but functional. You can feel motivation in small bursts now. Keep stacking clean days. The compound effect is real." },
-    { min: 60, msg: "Recovering. You're starting to feel genuine satisfaction from completing tasks. This is your brain healing. Don't throw it away for a 10-second hit." },
-    { min: 80, msg: "Your baseline is healthy. Things feel good naturally — walks feel nice, finishing work feels rewarding, food tastes better. This is what normal feels like." },
+    { min: 0,  msg: "Baseline is low. That is a starting state, not an identity. One clean day and one walk start moving the needle." },
+    { min: 20, msg: "Still flat, but not stuck. Boredom is the reset period. Keep the cheap hits away and give normal rewards a chance to land." },
+    { min: 40, msg: "Depleted but functional. Motivation will show up in small bursts now. Use them before the screen steals them." },
+    { min: 60, msg: "Recovering. Tasks are starting to feel rewarding again. Protect this with sleep, food, and a clean night." },
+    { min: 80, msg: "Healthy baseline. Walks, finished work, and food can feel good without a chemical shortcut." },
   ];
   const dopaMsg = [...DOPA_MSGS].reverse().find(m => dopaScore >= m.min).msg;
 
@@ -2352,9 +3029,9 @@ function renderToday() {
   const buildHabits = HABITS.filter(h => h.type === 'build');
   const discHabits = HABITS.filter(h => h.type === 'discipline');
 
-  let html = '<div class="habit-section-label">Build — these add to your capacity</div>';
+  let html = '<div class="habit-section-label">Build — add capacity</div>';
   buildHabits.forEach(h => html += renderHabitItem(h));
-  html += '<div class="habit-section-label">Discipline — these drain you when you fail</div>';
+  html += '<div class="habit-section-label">Protect — keep the drain away</div>';
   discHabits.forEach(h => html += renderHabitItem(h));
   document.getElementById('habit-list').innerHTML = html;
 
@@ -2433,7 +3110,7 @@ function getDiscStreak(disc) {
   const start = new Date(disc.startDate);
   const now = new Date();
   const diff = Math.floor((now - start) / 86400000);
-  return Math.max(0, diff);
+  return diff >= 0 ? diff + 1 : 0; // start day counts as day 1
 }
 
 function getBestDiscStreak(disc) {
@@ -2634,6 +3311,24 @@ function renderDiscPatterns(disc) {
   ).join('');
 }
 
+function openUrgeModal() {
+  document.getElementById('urge-modal').classList.add('open');
+}
+
+function closeUrgeModal() {
+  document.getElementById('urge-modal').classList.remove('open');
+}
+
+function completeUrgeMode() {
+  const dk = dateKey(new Date());
+  const data = getData('urgeResets');
+  data[dk] = (data[dk] || 0) + 1;
+  setData('urgeResets', data);
+  closeUrgeModal();
+  renderToday();
+  showWinToast('Urge reset logged');
+}
+
 function openSlipModal() {
   slipTriggers = [];
   document.getElementById('slip-note').value = '';
@@ -2673,6 +3368,7 @@ function logSlip() {
 
 function renderAll() { renderToday(); renderWorkouts(); renderNutrition(); renderWeight(); }
 renderAll();
+scheduleReminders();
 </script>
 </body>
 </html>
