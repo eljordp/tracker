@@ -2530,7 +2530,7 @@ const HABITS = [
 ];
 
 const LOCK_ITEMS = [
-  { id: 'grayscale', name: 'Grayscale on', note: 'Make feeds boring before urges hit' },
+  { id: 'grayscale', name: 'Grayscale on', note: 'Tap to toggle iPhone grayscale', shortcut: 'Grayscale' },
   { id: 'apps_blocked', name: 'Apps blocked', note: 'Delete or Screen Time the trap apps' },
   { id: 'phone_away', name: 'Phone away', note: 'Across the room for deep work or sleep' },
   { id: 'book_ready', name: 'Book placed', note: 'Put the better default where the phone sits' },
@@ -2639,11 +2639,21 @@ function toggleLockItem(lockId) {
   if (added) showWinToast('Restriction locked');
 }
 
+// Lock items can fire an iOS Shortcut (the only reliable way to flip a phone
+// setting from the web). Tap = run the shortcut on the phone + mark it done.
+function runLockAction(lockId) {
+  toggleLockItem(lockId);
+  const item = LOCK_ITEMS.find(i => i.id === lockId);
+  if (item && item.shortcut) {
+    window.location.href = 'shortcuts://run-shortcut?name=' + encodeURIComponent(item.shortcut);
+  }
+}
+
 function renderLockSetup(dk) {
   const done = getLockSetup(dk);
   const items = LOCK_ITEMS.map(item => {
     const isDone = done.includes(item.id);
-    return `<button class="lock-item ${isDone ? 'done' : ''}" onclick="toggleLockItem('${item.id}')">
+    return `<button class="lock-item ${isDone ? 'done' : ''}" onclick="runLockAction('${item.id}')">
       <div class="lock-name">${isDone ? '✓ ' : ''}${item.name}</div>
       <div class="lock-note">${item.note}</div>
     </button>`;
