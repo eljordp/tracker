@@ -9,6 +9,9 @@ import { Redis } from '@upstash/redis';
 const SUBS_KEY = 'push:subs';
 
 function getRedis() {
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return null;
+  }
   return Redis.fromEnv();
 }
 
@@ -47,11 +50,13 @@ export default async function handler(req, res) {
   const action = body.action;
 
   try {
-    const redis = getRedis();
-
     if (action === 'subscribe' || action === 'unsubscribe') {
       if (bearer(req) !== process.env.TRACKER_API_KEY) {
         return res.status(401).json({ error: 'unauthorized' });
+      }
+      const redis = getRedis();
+      if (!redis) {
+        return res.status(503).json({ error: 'push subscription store not configured' });
       }
       if (action === 'subscribe') {
         if (!body.subscription || !body.subscription.endpoint) {
@@ -75,6 +80,16 @@ export default async function handler(req, res) {
       }
       if (!vapidReady()) return res.status(503).json({ error: 'push not configured' });
       configureVapid();
+      const redis = getRedis();
+      if (!redis) {
+        return res.status(200).json({
+          ok: true,
+          sent: 0,
+          pruned: 0,
+          total: 0,
+          skipped: 'push subscription store not configured',
+        });
+      }
       const payload = JSON.stringify({
         title: body.title || 'Tracker',
         body: body.body || 'Open the tracker and lock one more rep.',
