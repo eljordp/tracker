@@ -897,6 +897,20 @@
       </div>
     </div>
 
+    <!-- Scan Plate (Cal AI) -->
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-body" style="padding:14px 16px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Scan Plate</div>
+        <input type="file" id="scan-input" accept="image/*" capture="environment" style="display:none;" onchange="handleScanFile(event)">
+        <button id="scan-btn" onclick="document.getElementById('scan-input').click()"
+                style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
+          <span style="font-size:18px;line-height:1;">&#128247;</span> Snap a photo of your food
+        </button>
+        <div id="scan-status" style="font-size:12px;color:var(--muted);margin-top:8px;min-height:16px;"></div>
+        <div id="scan-results"></div>
+      </div>
+    </div>
+
     <!-- Quick Log -->
     <div class="card" style="margin-bottom:14px;">
       <div class="card-body" style="padding:14px 16px;">
@@ -1926,6 +1940,101 @@ function addCustomFood() {
   document.getElementById('c-fat').value='';
   document.getElementById('c-carb').value='';
   renderNutrition();
+}
+
+// ===== Scan Plate (Cal AI photo → macros) =====
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Resize/compress to keep upload small + fast. Returns { data: base64NoPrefix, mime }
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1024;
+      let { width, height } = img;
+      if (width > height && width > MAX) { height = Math.round(height * MAX / width); width = MAX; }
+      else if (height > MAX) { width = Math.round(width * MAX / height); height = MAX; }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      resolve({ data: dataUrl.split(',')[1], mime: 'image/jpeg' });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('bad image')); };
+    img.src = url;
+  });
+}
+
+let scannedItems = [];
+
+async function handleScanFile(ev) {
+  const file = ev.target.files && ev.target.files[0];
+  ev.target.value = '';
+  if (!file) return;
+  const statusEl = document.getElementById('scan-status');
+  const resEl = document.getElementById('scan-results');
+  const btn = document.getElementById('scan-btn');
+  resEl.innerHTML = '';
+  if (!SYNC_KEY) { statusEl.style.color = '#c0392b'; statusEl.textContent = 'Add your sync key in Settings to use the scanner.'; return; }
+  statusEl.style.color = ''; statusEl.textContent = 'Reading your plate…';
+  btn.disabled = true;
+  try {
+    const img = await compressImage(file);
+    const resp = await fetch('/api/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SYNC_KEY },
+      body: JSON.stringify({ image: img.data, mime: img.mime }),
+    });
+    const json = await resp.json();
+    if (!resp.ok || !json.ok) { statusEl.style.color = '#c0392b'; statusEl.textContent = json.error || 'Scan failed.'; return; }
+    if (!json.items || !json.items.length) { statusEl.textContent = "Couldn't read any food. Try a clearer, closer shot."; return; }
+    scannedItems = json.items;
+    statusEl.textContent = 'Found ' + json.items.length + ' item' + (json.items.length > 1 ? 's' : '') + ' — tap to add:';
+    renderScanResults();
+  } catch (e) {
+    statusEl.style.color = '#c0392b'; statusEl.textContent = 'Scan failed. Check your connection.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderScanResults() {
+  const resEl = document.getElementById('scan-results');
+  let html = '<div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;">';
+  scannedItems.forEach((f, i) => {
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#f5f5f7;border-radius:10px;">'
+      + '<div style="min-width:0;"><div style="font-weight:600;font-size:14px;">' + escapeHtml(f.name) + (f.qty > 1 ? ' ×' + f.qty : '') + '</div>'
+      + '<div style="font-size:11px;color:var(--muted);">' + f.cal + ' cal · ' + f.pro + 'p · ' + f.fat + 'f · ' + f.carb + 'c</div></div>'
+      + '<button onclick="addScannedFood(' + i + ', this)" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;">Add</button></div>';
+  });
+  html += '<button onclick="addAllScanned()" style="margin-top:2px;background:var(--green-dim);color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Add all</button></div>';
+  resEl.innerHTML = html;
+}
+
+function pushScanned(f) {
+  const dk = dateKey(), data = getData('nutrition');
+  if (!data[dk]) data[dk] = [];
+  data[dk].push({ id: 'custom', name: f.name, qty: f.qty || 1, serving: 'scanned', cal: f.cal, pro: f.pro, fat: f.fat, carb: f.carb });
+  setData('nutrition', data);
+}
+
+function addScannedFood(i, btn) {
+  const f = scannedItems[i];
+  if (!f) return;
+  pushScanned(f);
+  renderNutrition();
+  if (btn) { btn.textContent = 'Added ✓'; btn.disabled = true; btn.style.background = '#888'; }
+}
+
+function addAllScanned() {
+  scannedItems.forEach(pushScanned);
+  renderNutrition();
+  document.getElementById('scan-results').innerHTML = '';
+  document.getElementById('scan-status').textContent = 'Added ' + scannedItems.length + ' items to your log ✓';
 }
 
 function quickLogFood() {
