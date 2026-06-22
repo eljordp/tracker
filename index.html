@@ -580,6 +580,114 @@
     border-radius: 999px;
     background: var(--green);
   }
+  .mission-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+  .mission-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .mission-title {
+    font-size: 15px;
+    font-weight: 850;
+    letter-spacing: -0.1px;
+  }
+  .mission-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.45;
+    margin-top: 3px;
+  }
+  .mission-total {
+    background: #111;
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 9px;
+    font-size: 11px;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+  .mission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mission-row {
+    border: 1px solid var(--border);
+    background: #f8f8fa;
+    border-radius: 12px;
+    padding: 11px;
+  }
+  .mission-row.done {
+    background: rgba(52,199,89,0.12);
+    border-color: rgba(52,199,89,0.45);
+  }
+  .mission-row-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 7px;
+  }
+  .mission-name {
+    font-size: 13px;
+    font-weight: 850;
+  }
+  .mission-xp {
+    font-size: 11px;
+    font-weight: 850;
+    color: var(--green-dim);
+    white-space: nowrap;
+  }
+  .mission-progress {
+    height: 5px;
+    background: #e5e5e7;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .mission-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 999px;
+  }
+  .mission-note {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+  .achievement-row {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1px;
+    margin-top: 12px;
+  }
+  .achievement-row::-webkit-scrollbar { display: none; }
+  .achievement-chip {
+    border: 1px solid var(--border);
+    background: #f8f8fa;
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .achievement-chip.unlocked {
+    background: rgba(52,199,89,0.12);
+    border-color: rgba(52,199,89,0.45);
+    color: var(--green-dim);
+  }
 
   .today-ring-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
   .today-ring { position: relative; width: 160px; height: 160px; }
@@ -793,6 +901,7 @@
     <div id="start-here"></div>
     <div id="lock-setup"></div>
     <div id="performance-card"></div>
+    <div id="mission-card"></div>
     <div class="today-ring-wrap">
       <div class="today-ring">
         <svg width="160" height="160" viewBox="0 0 160 160">
@@ -1020,7 +1129,7 @@
     <!-- Tracker tabs -->
     <div class="disc-tabs">
       <button class="disc-tab active" id="disc-tab-cart" onclick="switchDisc('cart')">No Cart</button>
-      <button class="disc-tab" id="disc-tab-pmo" onclick="switchDisc('pmo')">No PMO</button>
+      <button class="disc-tab" id="disc-tab-pmo" onclick="switchDisc('pmo')">No Goon</button>
     </div>
 
     <!-- Hero streak -->
@@ -2388,7 +2497,7 @@ const HABITS = [
   // DISCIPLINE — avoiding these PREVENTS the drain
   { id: 'no_cart',    name: 'No Cart',               time: 'All day',
     why: 'Protect REM sleep, ambition, and clean boredom. Tonight gets easier when today stays clean', impact: -4, type: 'discipline' },
-  { id: 'no_pmo',     name: 'No PMO',                time: 'All day',
+  { id: 'no_pmo',     name: 'No Goon',               time: 'All day',
     why: 'Skip the cheap spike. Keep drive, confidence, and normal rewards online for tomorrow', impact: -5, type: 'discipline' },
   { id: 'sleep_10',   name: 'Phone Off by 10',       time: '10 PM',
     why: 'Close the stimulation loop early so tomorrow starts with real energy instead of debt', impact: -3, type: 'discipline' },
@@ -2399,6 +2508,50 @@ const LOCK_ITEMS = [
   { id: 'apps_blocked', name: 'Apps blocked', note: 'Delete or Screen Time the trap apps' },
   { id: 'phone_away', name: 'Phone away', note: 'Across the room for deep work or sleep' },
   { id: 'book_ready', name: 'Book placed', note: 'Put the better default where the phone sits' },
+];
+const MISSION_DEFS = [
+  {
+    id: 'clean_core',
+    name: 'Clean Core',
+    note: 'No Goon + No Cart. This is the foundation stat.',
+    xp: 90,
+    stat: 'discipline',
+    checks: ['no_pmo', 'no_cart'],
+  },
+  {
+    id: 'deep_work_stack',
+    name: 'Deep Work Stack',
+    note: 'Deep Work + No Scroll. Protect your best attention.',
+    xp: 80,
+    stat: 'focus',
+    checks: ['deep_work', 'no_scroll'],
+  },
+  {
+    id: 'body_stack',
+    name: 'Body Stack',
+    note: 'Walk + protein + one workout signal.',
+    xp: 90,
+    stat: 'body',
+    checks: ['walk', 'protein'],
+    any: ['workout_am', 'workout_pm'],
+  },
+  {
+    id: 'night_lock',
+    name: 'Night Lock',
+    note: 'Phone off, journal, and at least two restriction locks.',
+    xp: 70,
+    stat: 'recovery',
+    checks: ['sleep_10', 'journal'],
+    minLocks: 2,
+  },
+];
+const ACHIEVEMENTS = [
+  { id: 'first_rep', name: 'First Rep', unlocked: () => getPerformanceProfile().totalXP > 0 },
+  { id: 'clean_day', name: 'Clean Day', unlocked: () => isMissionComplete(getMissionState('clean_core', dateKey(new Date()))) },
+  { id: 'locked_room', name: 'Locked Room', unlocked: () => getLockSetup(dateKey(new Date())).length >= LOCK_ITEMS.length },
+  { id: 'deep_operator', name: 'Deep Operator', unlocked: () => isMissionComplete(getMissionState('deep_work_stack', dateKey(new Date()))) },
+  { id: 'urge_defused', name: 'Urge Defused', unlocked: () => (getData('urgeResets')[dateKey(new Date())] || 0) > 0 },
+  { id: 'three_clean', name: '3-Day Clean', unlocked: () => getCleanStreak('no_pmo') >= 3 && getCleanStreak('no_cart') >= 3 },
 ];
 const REMINDER_TIMES = ['09:00','14:00','21:30'];
 
@@ -2483,6 +2636,80 @@ function renderLockSetup(dk) {
     </div>`;
 }
 
+function getMissionState(missionId, dk) {
+  const mission = MISSION_DEFS.find(m => m.id === missionId);
+  if (!mission) return null;
+  const checked = getHabits(dk);
+  const locks = getLockSetup(dk);
+  const required = mission.checks || [];
+  const requiredDone = required.filter(id => checked.includes(id)).length;
+  const anyDone = mission.any ? mission.any.some(id => checked.includes(id)) : true;
+  const locksDone = mission.minLocks ? locks.length >= mission.minLocks : true;
+  const totalPieces = required.length + (mission.any ? 1 : 0) + (mission.minLocks ? 1 : 0);
+  const completedPieces = requiredDone + (mission.any ? (anyDone ? 1 : 0) : 0) + (mission.minLocks ? (locksDone ? 1 : 0) : 0);
+  const done = totalPieces > 0 && completedPieces >= totalPieces;
+
+  return {
+    ...mission,
+    done,
+    completedPieces,
+    totalPieces,
+    progress: totalPieces ? Math.round((completedPieces / totalPieces) * 100) : 0,
+  };
+}
+
+function isMissionComplete(mission) {
+  return !!mission && mission.done;
+}
+
+function getDailyMissions(dk) {
+  return MISSION_DEFS.map(m => getMissionState(m.id, dk)).filter(Boolean);
+}
+
+function missionBonusXP(dk) {
+  return getDailyMissions(dk)
+    .filter(isMissionComplete)
+    .reduce((sum, mission) => sum + mission.xp, 0);
+}
+
+function getUnlockedAchievements() {
+  return ACHIEVEMENTS.map(achievement => {
+    let unlocked = false;
+    try { unlocked = !!achievement.unlocked(); } catch(e) { unlocked = false; }
+    return { ...achievement, unlocked };
+  });
+}
+
+function renderMissionCard(dk) {
+  const missions = getDailyMissions(dk);
+  const completed = missions.filter(isMissionComplete);
+  const missionHtml = missions.map(mission => `
+    <div class="mission-row ${mission.done ? 'done' : ''}">
+      <div class="mission-row-top">
+        <div class="mission-name">${mission.done ? '✓ ' : ''}${mission.name}</div>
+        <div class="mission-xp">+${mission.xp} XP</div>
+      </div>
+      <div class="mission-progress"><div class="mission-fill" style="width:${mission.progress}%;"></div></div>
+      <div class="mission-note">${mission.note} ${mission.completedPieces}/${mission.totalPieces}</div>
+    </div>`).join('');
+  const achievementHtml = getUnlockedAchievements().map(achievement =>
+    `<div class="achievement-chip ${achievement.unlocked ? 'unlocked' : ''}">${achievement.unlocked ? '✓ ' : ''}${achievement.name}</div>`
+  ).join('');
+
+  document.getElementById('mission-card').innerHTML = `
+    <div class="mission-card">
+      <div class="mission-head">
+        <div>
+          <div class="mission-title">Daily Missions</div>
+          <div class="mission-sub">Finish stacks to boost stats faster than single checkboxes.</div>
+        </div>
+        <div class="mission-total">${completed.length}/${missions.length}</div>
+      </div>
+      <div class="mission-list">${missionHtml}</div>
+      <div class="achievement-row">${achievementHtml}</div>
+    </div>`;
+}
+
 function dayXP(dk) {
   const checked = getHabits(dk);
   const lockDone = getLockSetup(dk).length;
@@ -2491,7 +2718,7 @@ function dayXP(dk) {
     const habit = HABITS.find(h => h.id === id);
     return sum + (habit ? Math.abs(habit.impact) * 10 : 0);
   }, 0);
-  return habitXP + lockDone * 15 + urgeCount * 25;
+  return habitXP + lockDone * 15 + urgeCount * 25 + missionBonusXP(dk);
 }
 
 function avg01(values) {
@@ -2505,7 +2732,7 @@ function getDayStats(dk) {
   const lockRatio = LOCK_ITEMS.length ? getLockSetup(dk).length / LOCK_ITEMS.length : 0;
   const urgeCount = getData('urgeResets')[dk] || 0;
 
-  return {
+  const stats = {
     focus: avg01([
       checked.includes('deep_work') ? 1 : 0,
       checked.includes('no_scroll') ? 1 : 0,
@@ -2530,6 +2757,12 @@ function getDayStats(dk) {
       urgeCount > 0 ? 1 : 0,
     ]),
   };
+  getDailyMissions(dk).filter(isMissionComplete).forEach(mission => {
+    if (mission.stat && stats[mission.stat] !== undefined) {
+      stats[mission.stat] = Math.min(100, stats[mission.stat] + 10);
+    }
+  });
+  return stats;
 }
 
 function gradeForScore(score) {
@@ -2553,6 +2786,7 @@ function rankForLevel(level) {
 function getPerformanceProfile() {
   const today = new Date();
   let totalXP = 0;
+  let statDays = 0;
   const totals = { focus: 0, discipline: 0, body: 0, recovery: 0 };
 
   for (let i = 0; i < 90; i++) {
@@ -2565,11 +2799,15 @@ function getPerformanceProfile() {
   for (let i = 0; i < 7; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const stats = getDayStats(dateKey(d));
+    const dk = dateKey(d);
+    if (dayXP(dk) <= 0) continue;
+    statDays++;
+    const stats = getDayStats(dk);
     Object.keys(totals).forEach(key => { totals[key] += stats[key]; });
   }
 
-  const stats = Object.fromEntries(Object.entries(totals).map(([key, val]) => [key, Math.round(val / 7)]));
+  const divisor = Math.max(1, statDays);
+  const stats = Object.fromEntries(Object.entries(totals).map(([key, val]) => [key, Math.round(val / divisor)]));
   const avgScore = Math.round(Object.values(stats).reduce((sum, val) => sum + val, 0) / 4);
   const level = Math.floor(totalXP / 500) + 1;
   const currentXP = totalXP % 500;
@@ -2740,11 +2978,7 @@ async function toggleReminders() {
 function renderStartCard(checked, pct) {
   const next = getStartMove(checked);
   const remaining = Math.max(0, HABITS.length - checked.length);
-  const lockDone = getLockSetup(dateKey(new Date())).length;
-  const xp = checked.reduce((sum, id) => {
-    const habit = HABITS.find(h => h.id === id);
-    return sum + (habit ? Math.abs(habit.impact) * 10 : 0);
-  }, 0) + lockDone * 15;
+  const xp = dayXP(dateKey(new Date()));
   const streak = getHabitStreak();
   const reminderPrefs = getReminderPrefs();
   const remindersOn = reminderPrefs.enabled && typeof Notification !== 'undefined' && Notification.permission === 'granted';
@@ -2977,6 +3211,7 @@ function renderToday() {
   renderStartCard(checked, pct);
   renderLockSetup(dk);
   renderPerformanceCard();
+  renderMissionCard(dk);
 
   // Daily Word — quote + verse + manifestation journal
   const quote = DAILY_QUOTES[getDailyIndex(DAILY_QUOTES)];
@@ -3096,12 +3331,12 @@ function renderToday() {
       <span>Thriving</span>
     </div>
     <div class="today-score-msg">${dopaMsg}</div>
-    <div style="margin-top:10px;font-size:10px;color:var(--muted);">Based on your last 7 days. Cold showers, exercise, sleep, and staying clean raise it. Cart, PMO, and scrolling crash it.</div>`;
+    <div style="margin-top:10px;font-size:10px;color:var(--muted);">Based on your last 7 days. Cold showers, exercise, sleep, and staying clean raise it. Cart, gooning, and scrolling crash it.</div>`;
   document.getElementById('dopamine-tracker').innerHTML = dopaHtml;
 
   // Clean days counters
   const CLEAN_HABITS = ['no_cart', 'no_pmo'];
-  const CLEAN_LABELS = { no_cart: 'No Cart', no_pmo: 'No PMO' };
+  const CLEAN_LABELS = { no_cart: 'No Cart', no_pmo: 'No Goon' };
   let cleanHtml = '';
   CLEAN_HABITS.forEach(hid => {
     const streak = getCleanStreak(hid);
