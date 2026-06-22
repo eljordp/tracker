@@ -1,0 +1,34 @@
+name: Push Reminders
+
+# Vercel Hobby cron can't do multiple times/day, so reminders fire from here.
+# Times are UTC. JP is US West Coast (PDT = UTC-7); during PST these land 1h earlier.
+#   16:00 UTC = 9:00a PDT   (morning: set the room)
+#   21:00 UTC = 2:00p PDT   (midday: next move)
+#   04:30 UTC = 9:30p PDT   (night: lock it down)
+on:
+  schedule:
+    - cron: '0 16 * * *'
+    - cron: '0 21 * * *'
+    - cron: '30 4 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pick message and send push
+        env:
+          ENDPOINT: ${{ secrets.PUSH_ENDPOINT }}
+          SECRET: ${{ secrets.PUSH_SEND_SECRET }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          case "$SCHEDULE" in
+            "0 16 * * *") TITLE="Set the room"; BODY="Grayscale on, phone across the room, book down. Win before the urge gets a vote.";;
+            "0 21 * * *") TITLE="Next move"; BODY="Midday check. Open the tracker and lock one more rep.";;
+            "30 4 * * *") TITLE="Lock the night"; BODY="Phone off, no goon, protect the streak. Let it work while you sleep.";;
+            *)            TITLE="Tracker"; BODY="Open the tracker and lock one more rep.";;
+          esac
+          curl -fsS -X POST "$ENDPOINT/api/push" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $SECRET" \
+            -d "$(printf '{"action":"send","title":%s,"body":%s}' "$(jq -Rn --arg t "$TITLE" '$t')" "$(jq -Rn --arg b "$BODY" '$b')")"

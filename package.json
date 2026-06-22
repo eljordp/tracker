@@ -1,6 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "@upstash/redis": "^1.36.4"
+    "@upstash/redis": "^1.36.4",
+    "web-push": "^3.6.7"
   }
 }
