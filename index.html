@@ -587,6 +587,140 @@
     border-radius: 999px;
     background: var(--green);
   }
+  .scroll-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+  .scroll-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .scroll-title {
+    font-size: 15px;
+    font-weight: 850;
+    letter-spacing: -0.1px;
+  }
+  .scroll-sub {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.45;
+    margin-top: 3px;
+  }
+  .scroll-badge {
+    background: #111;
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 9px;
+    font-size: 11px;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+  .scroll-badge.good { background: var(--green); color: #061407; }
+  .scroll-badge.mid { background: var(--yellow); color: #1a1200; }
+  .scroll-badge.bad { background: var(--red); color: #fff; }
+  .scroll-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .scroll-metric {
+    background: #f8f8fa;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .scroll-metric-val {
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: -0.2px;
+  }
+  .scroll-metric-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .scroll-bar {
+    height: 7px;
+    border-radius: 999px;
+    background: #ececef;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .scroll-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--green);
+  }
+  .scroll-fill.mid { background: var(--yellow); }
+  .scroll-fill.bad { background: var(--red); }
+  .scroll-apps {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 12px;
+  }
+  .scroll-app-row {
+    display: grid;
+    grid-template-columns: 72px 1fr 46px;
+    gap: 8px;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .scroll-app-name {
+    font-weight: 850;
+    color: var(--text);
+  }
+  .scroll-app-track {
+    height: 5px;
+    border-radius: 999px;
+    background: #e5e5e7;
+    overflow: hidden;
+  }
+  .scroll-app-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: #111;
+  }
+  .scroll-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .scroll-btn {
+    border: 1px solid var(--border);
+    background: #f8f8fa;
+    color: var(--text);
+    border-radius: 10px;
+    min-height: 40px;
+    padding: 8px 9px;
+    font-size: 11px;
+    font-weight: 850;
+    cursor: pointer;
+  }
+  .scroll-btn.primary {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+  }
+  .scroll-setup {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+  }
+  @media (max-width: 380px) {
+    .scroll-metrics { grid-template-columns: 1fr; }
+    .scroll-actions, .scroll-setup { grid-template-columns: 1fr; }
+  }
   .mission-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -908,6 +1042,7 @@
     <div id="start-here"></div>
     <div id="lock-setup"></div>
     <div id="performance-card"></div>
+    <div id="scroll-debt-card"></div>
     <div id="mission-card"></div>
     <div class="today-ring-wrap">
       <div class="today-ring">
@@ -2587,6 +2722,14 @@ const ACHIEVEMENTS = [
   { id: 'three_clean', name: '3-Day Clean', unlocked: () => getCleanStreak('no_pmo') >= 3 && getCleanStreak('no_cart') >= 3 },
 ];
 const REMINDER_TIMES = ['09:00','14:00','21:30'];
+const SCROLL_APPS = [
+  { id: 'instagram', name: 'Instagram' },
+  { id: 'tiktok', name: 'TikTok' },
+  { id: 'youtube', name: 'YouTube' },
+  { id: 'safari', name: 'Safari' },
+];
+const SCROLL_TARGET_MIN = 45;
+let scrollDebtLoaded = false;
 
 let calViewMonth = new Date().getMonth();
 let calViewYear = new Date().getFullYear();
@@ -2751,6 +2894,188 @@ function renderMissionCard(dk) {
       <div class="mission-list">${missionHtml}</div>
       <div class="achievement-row">${achievementHtml}</div>
     </div>`;
+}
+
+function formatMinutes(mins) {
+  const total = Math.max(0, Math.round(mins || 0));
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (h <= 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+function getScrollSessions(dk) {
+  const data = getData('scrollDebt');
+  return Array.isArray(data[dk]) ? data[dk] : [];
+}
+
+function saveScrollSessions(dk, sessions) {
+  const data = getData('scrollDebt');
+  data[dk] = sessions;
+  localStorage.setItem('scrollDebt', JSON.stringify(data));
+}
+
+function getScrollAppName(appId) {
+  const app = SCROLL_APPS.find(a => a.id === appId);
+  return app ? app.name : appId;
+}
+
+function summarizeScrollSessions(sessions) {
+  const appTotals = {};
+  let total = 0;
+  let longest = 0;
+  sessions.forEach(s => {
+    const minutes = Number(s.minutes) || 0;
+    total += minutes;
+    longest = Math.max(longest, minutes);
+    appTotals[s.app] = (appTotals[s.app] || 0) + minutes;
+  });
+  const debt = Math.max(0, total - SCROLL_TARGET_MIN);
+  const debtScore = Math.min(100, Math.round((debt / 240) * 100));
+  const label = total <= SCROLL_TARGET_MIN ? 'Controlled'
+    : total <= 120 ? 'Leaking'
+    : total <= 240 ? 'Cooked'
+    : 'Hijacked';
+  const tone = total <= SCROLL_TARGET_MIN ? 'good' : total <= 120 ? 'mid' : 'bad';
+  return { total, appTotals, longest, debt, debtScore, label, tone, count: sessions.length };
+}
+
+function mergeScrollSessions(dk, remoteSessions) {
+  if (!Array.isArray(remoteSessions)) return;
+  const local = getScrollSessions(dk);
+  const byId = {};
+  [...local, ...remoteSessions].forEach(session => {
+    if (!session || !session.id) return;
+    byId[session.id] = session;
+  });
+  const merged = Object.values(byId).sort((a, b) => new Date(a.start || a.end || 0) - new Date(b.start || b.end || 0));
+  saveScrollSessions(dk, merged);
+}
+
+async function loadScrollDebtFromAPI(force) {
+  if (!SYNC_KEY || (scrollDebtLoaded && !force)) return;
+  scrollDebtLoaded = true;
+  try {
+    const dk = dateKey(new Date());
+    const res = await fetch('/api/scroll?date=' + dk, {
+      headers: { 'Authorization': 'Bearer ' + SYNC_KEY },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    mergeScrollSessions(dk, data.sessions || []);
+    renderToday();
+  } catch(e) { /* local mode is fine */ }
+}
+
+function addLocalScrollSession(app, minutes, source) {
+  const dk = dateKey(new Date());
+  const end = new Date();
+  const start = new Date(end.getTime() - minutes * 60000);
+  const session = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    app,
+    minutes,
+    start: start.toISOString(),
+    end: end.toISOString(),
+    source: source || 'manual',
+  };
+  const sessions = getScrollSessions(dk);
+  sessions.push(session);
+  saveScrollSessions(dk, sessions);
+  renderToday();
+  return session;
+}
+
+async function logScrollMinutes(app, minutes) {
+  const session = addLocalScrollSession(app, minutes, 'manual');
+  showWinToast(`${getScrollAppName(app)} +${formatMinutes(minutes)}`);
+  if (!SYNC_KEY) return;
+  try {
+    await fetch('/api/scroll', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SYNC_KEY },
+      body: JSON.stringify({ action: 'add', session }),
+    });
+  } catch(e) { /* local log already saved */ }
+}
+
+function scrollShortcutUrl(app, eventName) {
+  const url = new URL('/api/scroll', window.location.origin);
+  url.searchParams.set('key', SYNC_KEY);
+  url.searchParams.set('app', app);
+  url.searchParams.set('event', eventName);
+  return url.toString();
+}
+
+async function copyScrollShortcutUrl(app, eventName) {
+  if (!SYNC_KEY) {
+    showWinToast('Add your sync key first');
+    return;
+  }
+  const url = scrollShortcutUrl(app, eventName);
+  try {
+    await navigator.clipboard.writeText(url);
+    showWinToast(`${getScrollAppName(app)} ${eventName} URL copied`);
+  } catch(e) {
+    window.prompt('Copy this URL', url);
+  }
+}
+
+function renderScrollDebtCard(dk) {
+  const sessions = getScrollSessions(dk);
+  const summary = summarizeScrollSessions(sessions);
+  const maxApp = Math.max(1, ...Object.values(summary.appTotals));
+  const appsHtml = SCROLL_APPS.map(app => {
+    const minutes = summary.appTotals[app.id] || 0;
+    const pct = Math.min(100, Math.round((minutes / maxApp) * 100));
+    return `<div class="scroll-app-row">
+      <div class="scroll-app-name">${app.name}</div>
+      <div class="scroll-app-track"><div class="scroll-app-fill" style="width:${pct}%;"></div></div>
+      <div>${formatMinutes(minutes)}</div>
+    </div>`;
+  }).join('');
+  const fillPct = Math.min(100, Math.round((summary.total / 300) * 100));
+  const syncText = SYNC_KEY ? 'Shortcut ready' : 'Local only';
+
+  document.getElementById('scroll-debt-card').innerHTML = `
+    <div class="scroll-card">
+      <div class="scroll-head">
+        <div>
+          <div class="scroll-title">Scroll Debt</div>
+          <div class="scroll-sub">${syncText}. Target is under ${SCROLL_TARGET_MIN}m. Shortcuts can log open and close events.</div>
+        </div>
+        <div class="scroll-badge ${summary.tone}">${summary.label}</div>
+      </div>
+      <div class="scroll-metrics">
+        <div class="scroll-metric">
+          <div class="scroll-metric-val">${formatMinutes(summary.total)}</div>
+          <div class="scroll-metric-label">today</div>
+        </div>
+        <div class="scroll-metric">
+          <div class="scroll-metric-val">${formatMinutes(summary.debt)}</div>
+          <div class="scroll-metric-label">over target</div>
+        </div>
+        <div class="scroll-metric">
+          <div class="scroll-metric-val">${formatMinutes(summary.longest)}</div>
+          <div class="scroll-metric-label">longest hit</div>
+        </div>
+      </div>
+      <div class="scroll-bar"><div class="scroll-fill ${summary.tone}" style="width:${fillPct}%;"></div></div>
+      <div class="scroll-apps">${appsHtml}</div>
+      <div class="scroll-actions">
+        <button class="scroll-btn primary" onclick="logScrollMinutes('instagram', 15)">IG +15m</button>
+        <button class="scroll-btn primary" onclick="logScrollMinutes('instagram', 30)">IG +30m</button>
+        <button class="scroll-btn" onclick="logScrollMinutes('tiktok', 15)">TikTok +15m</button>
+        <button class="scroll-btn" onclick="logScrollMinutes('youtube', 30)">YouTube +30m</button>
+      </div>
+      <div class="scroll-setup">
+        <button class="scroll-btn" onclick="copyScrollShortcutUrl('instagram', 'open')">Copy IG open hook</button>
+        <button class="scroll-btn" onclick="copyScrollShortcutUrl('instagram', 'close')">Copy IG close hook</button>
+      </div>
+    </div>`;
+
+  if (SYNC_KEY && !scrollDebtLoaded) loadScrollDebtFromAPI(false);
 }
 
 function dayXP(dk) {
@@ -3257,6 +3582,7 @@ function renderToday() {
   renderStartCard(checked, pct);
   renderLockSetup(dk);
   renderPerformanceCard();
+  renderScrollDebtCard(dk);
   renderMissionCard(dk);
 
   // Daily Word — quote + verse + manifestation journal
@@ -3353,6 +3679,10 @@ function renderToday() {
     if (!dayHabits.includes('no_cart')) dopaScore -= 5 * weight;
     if (!dayHabits.includes('no_pmo')) dopaScore -= 6 * weight;
     if (!dayHabits.includes('no_scroll')) dopaScore -= 2 * weight;
+    const scrollMins = summarizeScrollSessions(getScrollSessions(dk7)).total;
+    if (scrollMins > SCROLL_TARGET_MIN) {
+      dopaScore -= Math.min(8, Math.ceil((scrollMins - SCROLL_TARGET_MIN) / 30)) * weight;
+    }
   }
 
   dopaScore = Math.max(0, Math.min(100, Math.round(dopaScore)));
