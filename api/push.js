@@ -37,6 +37,13 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(204).end();
 
+  if (req.method === 'GET' && req.query.action === 'status') {
+    return res.status(200).json({
+      vapid: vapidReady(),
+      store: !!getRedis(),
+    });
+  }
+
   if (req.method === 'GET' && req.query.action === 'vapid') {
     if (!vapidReady()) return res.status(503).json({ error: 'push not configured' });
     return res.status(200).json({ publicKey: process.env.VAPID_PUBLIC });

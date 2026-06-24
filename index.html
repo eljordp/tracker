@@ -385,6 +385,16 @@
     font-weight: 800;
     white-space: nowrap;
   }
+  .start-reward span.warn {
+    background: rgba(255,69,58,0.2);
+    border-color: rgba(255,69,58,0.5);
+    color: #ffd6d3;
+  }
+  .start-reward span.good {
+    background: rgba(52,199,89,0.18);
+    border-color: rgba(52,199,89,0.55);
+    color: #9df0b2;
+  }
   .start-actions { display: flex; gap: 8px; margin-bottom: 12px; }
   .start-btn {
     flex: 1;
@@ -3272,6 +3282,25 @@ function saveReminderPrefs(prefs) {
   localStorage.setItem('reminderPrefs', JSON.stringify(prefs));
 }
 
+function getPushStatus() {
+  try { return JSON.parse(localStorage.getItem('pushStatus')) || {}; } catch(e) { return {}; }
+}
+
+function setPushStatus(status) {
+  localStorage.setItem('pushStatus', JSON.stringify({ ...status, at: new Date().toISOString() }));
+}
+
+function pushStatusChip(remindersOn) {
+  if (!remindersOn) return { text: 'Push off', cls: '' };
+  const status = getPushStatus();
+  if (status.ok) return { text: 'Push live', cls: 'good' };
+  if (status.reason === 'store_missing') return { text: 'Store missing', cls: 'warn' };
+  if (status.reason === 'sync_key_missing') return { text: 'Add sync key', cls: 'warn' };
+  if (status.reason === 'unsupported') return { text: 'Install app', cls: 'warn' };
+  if (status.reason === 'permission') return { text: 'Allow notis', cls: 'warn' };
+  return { text: 'Push not verified', cls: 'warn' };
+}
+
 function formatReminderTime(t) {
   const [h, m] = t.split(':').map(Number);
   const suffix = h >= 12 ? 'p' : 'a';
@@ -3317,6 +3346,7 @@ function sendReminder() {
 
 async function toggleReminders() {
   if (typeof Notification === 'undefined') {
+    setPushStatus({ ok: false, reason: 'unsupported', message: 'Browser reminders unavailable' });
     showWinToast('Browser reminders unavailable');
     return;
   }
@@ -3324,6 +3354,7 @@ async function toggleReminders() {
   if (prefs.enabled) {
     prefs.enabled = false;
     saveReminderPrefs(prefs);
+    setPushStatus({ ok: false, reason: 'off', message: 'Reminders off' });
     clearReminderTimers();
     unsubscribeFromPush();
     renderToday();
@@ -3334,6 +3365,7 @@ async function toggleReminders() {
     ? 'granted'
     : await Notification.requestPermission();
   if (permission !== 'granted') {
+    setPushStatus({ ok: false, reason: 'permission', message: 'Notifications blocked' });
     showWinToast('Notifications blocked');
     return;
   }
@@ -3343,7 +3375,8 @@ async function toggleReminders() {
   // Real push: fires even when the app is closed (requires installed PWA on iOS).
   const pushed = await subscribeToPush();
   renderToday();
-  showWinToast(pushed ? 'Reminders on' : 'Reminders on (open-app only)');
+  const status = getPushStatus();
+  showWinToast(pushed ? 'Real push on' : (status.message || 'Reminders need setup'));
 }
 
 function renderStartCard(checked, pct) {
@@ -3353,6 +3386,7 @@ function renderStartCard(checked, pct) {
   const streak = getHabitStreak();
   const reminderPrefs = getReminderPrefs();
   const remindersOn = reminderPrefs.enabled && typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  const pushChip = pushStatusChip(remindersOn);
   const reminderLabel = remindersOn
     ? 'Reminders on'
     : 'Enable reminders';
@@ -3392,6 +3426,7 @@ function renderStartCard(checked, pct) {
         <span>${xp} XP today</span>
         <span>${streak} day streak</span>
         <span>${reminderSub}</span>
+        <span class="${pushChip.cls}">${pushChip.text}</span>
       </div>
       <div class="start-actions">
         <button class="start-btn primary" onclick="${primaryAction}">${primaryLabel}</button>
@@ -4109,15 +4144,43 @@ function urlBase64ToUint8Array(base64String) {
 
 // Subscribe this device to server push. Returns true on success.
 async function subscribeToPush() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
-  if (!SYNC_KEY) { showWinToast('Add your sync key first'); return false; }
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    setPushStatus({ ok: false, reason: 'unsupported', message: 'Install the PWA from Safari first' });
+    return false;
+  }
+  if (!SYNC_KEY) {
+    setPushStatus({ ok: false, reason: 'sync_key_missing', message: 'Add your sync key first' });
+    showWinToast('Add your sync key first');
+    return false;
+  }
   const reg = swRegistration || await registerServiceWorker();
-  if (!reg) return false;
+  if (!reg) {
+    setPushStatus({ ok: false, reason: 'unsupported', message: 'Service worker unavailable' });
+    return false;
+  }
   try {
+    const serverStatus = await fetch('/api/push?action=status');
+    if (serverStatus.ok) {
+      const status = await serverStatus.json();
+      if (!status.vapid) {
+        setPushStatus({ ok: false, reason: 'vapid_missing', message: 'Push keys missing on server' });
+        return false;
+      }
+      if (!status.store) {
+        setPushStatus({ ok: false, reason: 'store_missing', message: 'Push store missing: add Redis or Supabase storage' });
+        return false;
+      }
+    }
     const res = await fetch('/api/push?action=vapid');
-    if (!res.ok) return false;
+    if (!res.ok) {
+      setPushStatus({ ok: false, reason: 'vapid_missing', message: 'Push keys missing on server' });
+      return false;
+    }
     const { publicKey } = await res.json();
-    if (!publicKey) return false;
+    if (!publicKey) {
+      setPushStatus({ ok: false, reason: 'vapid_missing', message: 'Push keys missing on server' });
+      return false;
+    }
     let sub = await reg.pushManager.getSubscription();
     if (!sub) {
       sub = await reg.pushManager.subscribe({
@@ -4130,8 +4193,21 @@ async function subscribeToPush() {
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SYNC_KEY },
       body: JSON.stringify({ action: 'subscribe', subscription: sub }),
     });
-    return save.ok;
+    if (!save.ok) {
+      let err = {};
+      try { err = await save.json(); } catch(e) {}
+      const storeMissing = save.status === 503 || /store/i.test(err.error || '');
+      setPushStatus({
+        ok: false,
+        reason: storeMissing ? 'store_missing' : 'subscribe_failed',
+        message: storeMissing ? 'Push store missing: add Redis or Supabase storage' : 'Phone subscription failed',
+      });
+      return false;
+    }
+    setPushStatus({ ok: true, reason: 'subscribed', message: 'Real push is live' });
+    return true;
   } catch (e) {
+    setPushStatus({ ok: false, reason: 'subscribe_failed', message: 'Phone subscription failed' });
     return false;
   }
 }
