@@ -372,6 +372,7 @@
   }
   .start-reward {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 12px;
   }
@@ -398,6 +399,7 @@
   .start-actions { display: flex; gap: 8px; margin-bottom: 12px; }
   .start-btn {
     flex: 1;
+    min-width: 0;
     border: 1px solid rgba(255,255,255,0.18);
     border-radius: 10px;
     background: rgba(255,255,255,0.1);
@@ -414,9 +416,8 @@
   }
   .quick-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 7px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     padding-bottom: 1px;
   }
   .quick-row::-webkit-scrollbar { display: none; }
@@ -1050,9 +1051,9 @@
       <div class="sub" id="today-date-label"></div>
     </div>
     <div id="start-here"></div>
-    <div id="lock-setup"></div>
     <div id="performance-card"></div>
-    <div id="scroll-debt-card"></div>
+    <div class="today-score-wrap" id="today-score"></div>
+    <div class="work-section-wrap" id="work-section"></div>
     <div id="mission-card"></div>
     <div class="today-ring-wrap">
       <div class="today-ring">
@@ -1071,11 +1072,9 @@
       </div>
     </div>
     <div class="daily-word-wrap" id="daily-word"></div>
-    <div class="today-score-wrap" id="today-score"></div>
+    <div id="scroll-debt-card"></div>
+    <div id="lock-setup"></div>
     <div class="today-score-wrap" id="dopamine-tracker"></div>
-    <div class="clean-days-wrap" id="clean-days"></div>
-    <div class="habit-list" id="habit-list"></div>
-    <div class="work-section-wrap" id="work-section"></div>
     <div class="today-cal-wrap">
       <div class="today-month-nav">
         <button onclick="changeCalMonth(-1)">&larr;</button>
@@ -1084,6 +1083,8 @@
       </div>
       <div class="today-cal-grid" id="today-cal-grid"></div>
     </div>
+    <div class="habit-list" id="habit-list"></div>
+    <div class="clean-days-wrap" id="clean-days"></div>
   </div>
 </div>
 
@@ -1416,7 +1417,7 @@
   </button>
   <button onclick="showPage('discipline', this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Quit
+    Recovery
   </button>
 </nav>
 
@@ -2689,14 +2690,6 @@ const LOCK_ITEMS = [
 ];
 const MISSION_DEFS = [
   {
-    id: 'clean_core',
-    name: 'Clean Core',
-    note: 'No Goon + No Cart. This is the foundation stat.',
-    xp: 90,
-    stat: 'discipline',
-    checks: ['no_pmo', 'no_cart'],
-  },
-  {
     id: 'deep_work_stack',
     name: 'Deep Work Stack',
     note: 'Deep Work + No Scroll. Protect your best attention.',
@@ -2721,6 +2714,14 @@ const MISSION_DEFS = [
     stat: 'recovery',
     checks: ['sleep_10', 'journal'],
     minLocks: 2,
+  },
+  {
+    id: 'clean_core',
+    name: 'Clean Core',
+    note: 'Keep both restriction promises clean. This is the foundation stat.',
+    xp: 90,
+    stat: 'discipline',
+    checks: ['no_pmo', 'no_cart'],
   },
 ];
 const ACHIEVEMENTS = [
@@ -3257,13 +3258,13 @@ function getStartMove(checked) {
   const hour = new Date().getHours();
   let priority;
   if (hour < 10) {
-    priority = ['no_pmo','no_cart','walk','workout_am','bible','no_scroll','deep_work'];
+    priority = ['walk','workout_am','bible','no_scroll','deep_work','protein','no_cart','sleep_10','no_pmo'];
   } else if (hour < 14) {
-    priority = ['no_pmo','no_cart','deep_work','no_scroll','protein','walk'];
+    priority = ['deep_work','no_scroll','protein','walk','no_cart','journal','sleep_10','no_pmo'];
   } else if (hour < 20) {
-    priority = ['no_pmo','no_cart','protein','workout_pm','cold_shower','journal'];
+    priority = ['protein','workout_pm','cold_shower','journal','no_cart','sleep_10','no_pmo'];
   } else {
-    priority = ['no_pmo','no_cart','sleep_10','journal','cold_shower'];
+    priority = ['sleep_10','journal','cold_shower','no_cart','no_pmo'];
   }
 
   return priority.map(id => HABITS.find(h => h.id === id)).find(h => h && !checked.includes(h.id))
@@ -3391,7 +3392,7 @@ function renderStartCard(checked, pct) {
     ? 'Reminders on'
     : 'Enable reminders';
   const reminderSub = reminderPrefs.times.map(formatReminderTime).join(' / ');
-  const quickIds = ['no_pmo','no_cart','bible','journal','sleep_10'];
+  const quickIds = ['deep_work','no_scroll','protein','journal','sleep_10'];
   const quickHtml = quickIds.map(id => {
     const h = HABITS.find(item => item.id === id);
     if (!h) return '';
@@ -3406,13 +3407,13 @@ function renderStartCard(checked, pct) {
     primaryLabel = 'Review today';
     primaryAction = 'scrollToHabits()';
   } else if (checked.length === 0) {
-    title = 'Start with one clean win.';
-    sub = 'Tap one promise, then take one physical action. No negotiation, no reset fantasy.';
+    title = 'Start with one focused win.';
+    sub = 'Pick one visible action, then let the day build proof instead of friction.';
     primaryLabel = next.link ? `Open ${next.name}` : `Claim ${next.name}`;
     primaryAction = `toggleHabit('${next.id}')`;
   } else {
     title = `Next: ${next.name}`;
-    sub = `${checked.length}/${HABITS.length} locked. ${remaining} left, but the day already has motion.`;
+    sub = `${checked.length}/${HABITS.length} locked. ${remaining} left, and the day already has motion.`;
     primaryLabel = next.link ? `Open ${next.name}` : `Claim ${next.name}`;
     primaryAction = `toggleHabit('${next.id}')`;
   }
@@ -3742,7 +3743,7 @@ function renderToday() {
       <span>Thriving</span>
     </div>
     <div class="today-score-msg">${dopaMsg}</div>
-    <div style="margin-top:10px;font-size:10px;color:var(--muted);">Based on your last 7 days. Cold showers, exercise, sleep, and staying clean raise it. Cart, gooning, and scrolling crash it.</div>`;
+    <div style="margin-top:10px;font-size:10px;color:var(--muted);">Based on your last 7 days. Cold showers, exercise, sleep, and staying clean raise it. Late-night hits, cart, and scrolling drag it down.</div>`;
   document.getElementById('dopamine-tracker').innerHTML = dopaHtml;
 
   // Clean days counters
